@@ -82,6 +82,7 @@ func TestNewTaxCalculator(t *testing.T) {
 
 	if calc == nil {
 		t.Errorf("Expected non-nil calculator")
+		return
 	}
 	if len(calc.Configuration.DefaultRules) != 1 {
 		t.Errorf("Expected 1 rule, got %d", len(calc.Configuration.DefaultRules))
