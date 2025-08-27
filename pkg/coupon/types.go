@@ -79,7 +79,7 @@ type GeneratorConfig struct {
 type ValidationRule struct {
 	Type        string      `json:"type"`        // "user_based", "order_based", "time_based", "usage_based"
 	Condition   string      `json:"condition"`   // Specific condition
-	Value       interface{} `json:"value"`       // Value to check against
+	Value       any `json:"value"`       // Value to check against
 	ErrorMessage string     `json:"error_message"`
 }
 
