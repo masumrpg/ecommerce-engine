@@ -65,6 +65,20 @@ func validateUserBasedRule(rule ValidationRule, input CalculationInput, userElig
 			}
 		}
 
+	case "minimum_purchase_history":
+		if minPurchases, ok := rule.Value.(float64); ok {
+			if float64(input.Usage.UsageCount) < minPurchases {
+				return errors.New(rule.ErrorMessage)
+			}
+		}
+
+	case "user_id_pattern":
+		if pattern, ok := rule.Value.(string); ok {
+			if !isValidUserIDPattern(input.UserID, pattern) {
+				return errors.New(rule.ErrorMessage)
+			}
+		}
+
 	default:
 		return fmt.Errorf("unknown user-based condition: %s", rule.Condition)
 	}
@@ -179,6 +193,21 @@ func validateUsageBasedRule(rule ValidationRule, coupon Coupon, input Calculatio
 	case "total_usage_cap":
 		if totalCap, ok := rule.Value.(float64); ok {
 			if float64(input.Usage.TotalUsage) >= totalCap {
+				return errors.New(rule.ErrorMessage)
+			}
+		}
+
+	case "coupon_expiry_buffer":
+		if bufferHours, ok := rule.Value.(float64); ok {
+			bufferTime := time.Duration(bufferHours) * time.Hour
+			if time.Now().Add(bufferTime).After(coupon.ValidUntil) {
+				return errors.New(rule.ErrorMessage)
+			}
+		}
+
+	case "coupon_value_threshold":
+		if minValue, ok := rule.Value.(float64); ok {
+			if coupon.Value < minValue {
 				return errors.New(rule.ErrorMessage)
 			}
 		}
@@ -355,6 +384,48 @@ func hasAllCodes(coupons []Coupon, codes []string) bool {
 	}
 
 	return true
+}
+
+// isValidUserIDPattern checks if user ID matches the specified pattern
+func isValidUserIDPattern(userID, pattern string) bool {
+	switch strings.ToLower(pattern) {
+	case "email":
+		return strings.Contains(userID, "@") && strings.Contains(userID, ".")
+	case "numeric":
+		for _, char := range userID {
+			if char < '0' || char > '9' {
+				return false
+			}
+		}
+		return len(userID) > 0
+	case "alphanumeric":
+		for _, char := range userID {
+			if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')) {
+				return false
+			}
+		}
+		return len(userID) > 0
+	case "uuid":
+		// Simple UUID pattern check (8-4-4-4-12)
+		parts := strings.Split(userID, "-")
+		if len(parts) != 5 {
+			return false
+		}
+		expectedLengths := []int{8, 4, 4, 4, 12}
+		for i, part := range parts {
+			if len(part) != expectedLengths[i] {
+				return false
+			}
+			for _, char := range part {
+				if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F')) {
+					return false
+				}
+			}
+		}
+		return true
+	default:
+		return true // Allow any pattern if not specified
+	}
 }
 
 // ValidateBusinessRules validates business-specific rules

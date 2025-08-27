@@ -115,13 +115,13 @@ func (re *RuleEngine) ApplyRules(items []DiscountItem, customer Customer, allowS
 	input := DiscountCalculationInput{
 		Items:                     items,
 		Customer:                  customer,
-		BulkRules:                re.BulkRules,
-		TierRules:                re.TierRules,
-		BundleRules:              re.BundleRules,
-		LoyaltyRules:             re.LoyaltyRules,
-		ProgressiveRules:         re.ProgressiveRules,
-		CategoryRules:            re.CategoryRules,
-		AllowStacking:            allowStacking,
+		BulkRules:                 re.BulkRules,
+		TierRules:                 re.TierRules,
+		BundleRules:               re.BundleRules,
+		LoyaltyRules:              re.LoyaltyRules,
+		ProgressiveRules:          re.ProgressiveRules,
+		CategoryRules:             re.CategoryRules,
+		AllowStacking:             allowStacking,
 		MaxStackedDiscountPercent: 50, // Default max 50% stacked discount
 	}
 
@@ -296,9 +296,10 @@ func (re *RuleEngine) ApplyMixAndMatchDiscounts(items []DiscountItem) DiscountCa
 			itemAmount := calculateItemsAmount(discountItems)
 
 			var discount float64
-			if rule.DiscountType == "flat_discount" {
+			switch rule.DiscountType {
+			case "flat_discount":
 				discount = rule.DiscountValue * float64(applications)
-			} else if rule.DiscountType == "percentage" {
+			case "percentage":
 				discount = itemAmount * (rule.DiscountValue / 100)
 			}
 
