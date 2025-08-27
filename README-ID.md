@@ -1,40 +1,40 @@
 # E-Commerce Engine
 
-A comprehensive and modular e-commerce engine written in Go, providing various features for calculating prices, discounts, coupons, shipping, taxes, loyalty, and currency conversion.
+Sebuah engine e-commerce yang komprehensif dan modular yang ditulis dalam Go, menyediakan berbagai fitur untuk menghitung harga, diskon, kupon, pengiriman, pajak, loyalitas, dan konversi mata uang.
 
-## 🚀 Key Features
+## 🚀 Fitur Utama
 
-- **💰 Currency**: Currency conversion with support for Rupiah and international currencies
-- **🏷️ Coupon**: Coupon system with generator, validator, and calculator
-- **💸 Discount**: Various types of discounts (bulk, tier, bundle, loyalty, progressive, etc.)
-- **🚚 Shipping**: Shipping cost calculation based on zones, weight, and special rules
-- **📊 Tax**: Flexible tax system with various tax types
-- **💎 Loyalty**: Loyalty program with points, tiers, and rewards
-- **💲 Pricing**: Price calculation with bundling and tier pricing
-- **🔧 Utils**: Mathematical utilities and ID generators
+- **💰 Currency**: Konversi mata uang dengan dukungan Rupiah dan mata uang internasional
+- **🏷️ Coupon**: Sistem kupon dengan generator, validator, dan kalkulator
+- **💸 Discount**: Berbagai jenis diskon (bulk, tier, bundle, loyalty, progressive, dll)
+- **🚚 Shipping**: Kalkulasi ongkos kirim berdasarkan zona, berat, dan aturan khusus
+- **📊 Tax**: Sistem pajak yang fleksibel dengan berbagai jenis pajak
+- **💎 Loyalty**: Program loyalitas dengan poin, tier, dan reward
+- **💲 Pricing**: Kalkulasi harga dengan bundling dan tier pricing
+- **🔧 Utils**: Utilitas matematika dan generator ID
 
-## 📋 Table of Contents
+## 📋 Daftar Isi
 
-- [Installation](#installation)
-- [Project Structure](#project-structure)
-- [System Architecture](#system-architecture)
+- [Instalasi](#instalasi)
+- [Struktur Proyek](#struktur-proyek)
+- [Arsitektur Sistem](#arsitektur-sistem)
 - [Flow Diagram](#flow-diagram)
 - [Package Documentation](#package-documentation)
-- [Usage Examples](#usage-examples)
+- [Contoh Penggunaan](#contoh-penggunaan)
 - [Testing](#testing)
 - [Contributing](#contributing)
 
-## 🛠️ Installation
+## 🛠️ Instalasi
 
 ```bash
 # Install module
 go get github.com/yourusername/ecommerce-engine
 
-# Or if you want to use it as a dependency in your project
+# Atau jika ingin menggunakan sebagai dependency dalam project
 go mod init your-project-name
 go get github.com/yourusername/ecommerce-engine
 
-# Clone for development (optional)
+# Clone untuk development (opsional)
 git clone https://github.com/yourusername/ecommerce-engine.git
 cd ecommerce-engine
 go mod tidy
@@ -46,27 +46,27 @@ go run examples/main.go
 go test ./...
 ```
 
-### Using as Dependency
+### Menggunakan sebagai Dependency
 
-To use this module in your Go project:
+Untuk menggunakan module ini dalam project Go Anda:
 
 ```bash
-# In your Go project
+# Dalam project Go Anda
 go mod init your-project-name
 go get github.com/yourusername/ecommerce-engine
 ```
 
-Then import the required packages:
+Kemudian import package yang dibutuhkan:
 
 ```go
 import (
     "github.com/yourusername/ecommerce-engine/pkg/currency"
     "github.com/yourusername/ecommerce-engine/pkg/coupon"
-    // ... other packages as needed
+    // ... package lainnya sesuai kebutuhan
 )
 ```
 
-## 📁 Project Structure
+## 📁 Struktur Proyek
 
 ```
 ecommerce-engine/
@@ -74,45 +74,45 @@ ecommerce-engine/
 ├── go.mod                   # Go module definition
 ├── go.sum                   # Go module checksums
 ├── examples/
-│   └── main.go              # Usage examples for all packages
+│   └── main.go              # Contoh penggunaan semua package
 └── pkg/
-    ├── coupon/              # Coupon system
-    │   ├── calculator.go    # Coupon calculation
-    │   ├── generator.go     # Coupon code generator
-    │   ├── validator.go     # Coupon validation
-    │   └── types.go         # Type definitions
-    ├── currency/            # Currency conversion
-    │   ├── calculator.go    # Currency calculation
-    │   ├── constants.go     # Currency constants
-    │   ├── types.go         # Type definitions
-    │   └── utils.go         # Currency utilities
-    ├── discount/            # Discount system
-    │   ├── calculator.go    # Discount calculation
-    │   ├── rules.go         # Discount rules
-    │   ├── validator.go     # Discount validation
-    │   └── types.go         # Type definitions
-    ├── loyalty/             # Loyalty program
-    │   ├── calculator.go    # Loyalty points calculation
-    │   ├── rules.go         # Loyalty rules
-    │   └── types.go         # Type definitions
-    ├── pricing/             # Pricing system
-    │   ├── calculator.go    # Price calculation
+    ├── coupon/              # Sistem kupon
+    │   ├── calculator.go    # Kalkulasi kupon
+    │   ├── generator.go     # Generator kode kupon
+    │   ├── validator.go     # Validasi kupon
+    │   └── types.go         # Definisi tipe data
+    ├── currency/            # Konversi mata uang
+    │   ├── calculator.go    # Kalkulasi mata uang
+    │   ├── constants.go     # Konstanta mata uang
+    │   ├── types.go         # Definisi tipe data
+    │   └── utils.go         # Utilitas mata uang
+    ├── discount/            # Sistem diskon
+    │   ├── calculator.go    # Kalkulasi diskon
+    │   ├── rules.go         # Aturan diskon
+    │   ├── validator.go     # Validasi diskon
+    │   └── types.go         # Definisi tipe data
+    ├── loyalty/             # Program loyalitas
+    │   ├── calculator.go    # Kalkulasi poin loyalitas
+    │   ├── rules.go         # Aturan loyalitas
+    │   └── types.go         # Definisi tipe data
+    ├── pricing/             # Sistem pricing
+    │   ├── calculator.go    # Kalkulasi harga
     │   ├── bundling.go      # Bundle pricing
-    │   └── types.go         # Type definitions
-    ├── shipping/            # Shipping calculation
-    │   ├── calculator.go    # Shipping cost calculation
-    │   ├── rules.go         # Shipping rules
-    │   └── types.go         # Type definitions
-    ├── tax/                 # Tax system
-    │   ├── calculator.go    # Tax calculation
-    │   ├── rules.go         # Tax rules
-    │   └── types.go         # Type definitions
-    └── utils/               # Common utilities
-        ├── generator.go     # ID and code generators
-        └── math.go          # Mathematical utilities
+    │   └── types.go         # Definisi tipe data
+    ├── shipping/            # Kalkulasi pengiriman
+    │   ├── calculator.go    # Kalkulasi ongkir
+    │   ├── rules.go         # Aturan pengiriman
+    │   └── types.go         # Definisi tipe data
+    ├── tax/                 # Sistem pajak
+    │   ├── calculator.go    # Kalkulasi pajak
+    │   ├── rules.go         # Aturan pajak
+    │   └── types.go         # Definisi tipe data
+    └── utils/               # Utilitas umum
+        ├── generator.go     # Generator ID dan kode
+        └── math.go          # Utilitas matematika
 ```
 
-## 🏗️ System Architecture
+## 🏗️ Arsitektur Sistem
 
 ```mermaid
 graph TB
@@ -126,7 +126,7 @@ graph TB
         G --> H[Loyalty Engine]
         H --> I[Final Order]
     end
-    
+
     subgraph "Core Packages"
         J[Currency]
         K[Pricing]
@@ -137,7 +137,7 @@ graph TB
         P[Loyalty]
         Q[Utils]
     end
-    
+
     B -.-> J
     C -.-> K
     D -.-> L
@@ -161,26 +161,26 @@ flowchart TD
     Currency -->|Yes| CurrConv[Convert Currency]
     Currency -->|No| Pricing[Calculate Base Pricing]
     CurrConv --> Pricing
-    
+
     Pricing --> Bundle{Bundle\nDiscount?}
     Bundle -->|Yes| BundleCalc[Apply Bundle Discount]
     Bundle -->|No| Discount[Calculate Discounts]
     BundleCalc --> Discount
-    
+
     Discount --> Coupon[Apply Coupons]
     Coupon --> Shipping[Calculate Shipping]
     Shipping --> Tax[Calculate Tax]
     Tax --> Loyalty[Process Loyalty Points]
     Loyalty --> Final[Final Order Total]
     Final --> End([End])
-    
+
     subgraph "Validation Layer"
         V1[Coupon Validation]
         V2[Discount Validation]
         V3[Shipping Rules]
         V4[Tax Rules]
     end
-    
+
     Coupon -.-> V1
     Discount -.-> V2
     Shipping -.-> V3
@@ -199,25 +199,25 @@ sequenceDiagram
     participant Shipping
     participant Tax
     participant Loyalty
-    
+
     Client->>Currency: Convert base currency
     Currency-->>Client: Converted amounts
-    
+
     Client->>Pricing: Calculate base prices
     Pricing-->>Client: Base pricing
-    
+
     Client->>Discount: Apply discounts
     Discount-->>Client: Discounted prices
-    
+
     Client->>Coupon: Apply coupons
     Coupon-->>Client: Final item prices
-    
+
     Client->>Shipping: Calculate shipping
     Shipping-->>Client: Shipping cost
-    
+
     Client->>Tax: Calculate taxes
     Tax-->>Client: Tax amounts
-    
+
     Client->>Loyalty: Process loyalty
     Loyalty-->>Client: Loyalty points & rewards
 ```
@@ -226,15 +226,15 @@ sequenceDiagram
 
 ### 💰 Currency Package
 
-Handles currency conversion with support for various international currencies.
+Menangani konversi mata uang dengan dukungan berbagai mata uang internasional.
 
-**Features:**
-- Real-time currency conversion
-- Support for Rupiah (IDR) and international currencies
-- Customizable currency formatting
-- Automatic rounding
+**Fitur:**
+- Konversi mata uang real-time
+- Dukungan Rupiah (IDR) dan mata uang internasional
+- Format mata uang yang dapat dikustomisasi
+- Pembulatan otomatis
 
-**Example:
+**Contoh:**
 ```go
 calc := currency.NewCalculator()
 calc.SetExchangeRate("USD", "IDR", 15000.0)
@@ -247,15 +247,15 @@ result := calc.Convert(currency.ConversionInput{
 
 ### 🏷️ Coupon Package
 
-Complete coupon system with generator, validator, and calculator.
+Sistem kupon lengkap dengan generator, validator, dan kalkulator.
 
-**Features:**
-- Automatic coupon code generator
-- Coupon validation (date, usage limit, eligibility)
-- Various coupon types (percentage, fixed amount, free shipping)
-- Coupon usage tracking
+**Fitur:**
+- Generator kode kupon otomatis
+- Validasi kupon (tanggal, usage limit, eligibility)
+- Berbagai jenis kupon (percentage, fixed amount, free shipping)
+- Tracking penggunaan kupon
 
-**Example:
+**Contoh:**
 ```go
 generator := coupon.NewGenerator()
 codes := generator.GenerateCodes(coupon.GeneratorConfig{
@@ -273,19 +273,19 @@ result := calculator.Calculate(coupon.CalculationInput{
 
 ### 💸 Discount Package
 
-Flexible discount system with various types of discount rules.
+Sistem diskon yang fleksibel dengan berbagai jenis aturan diskon.
 
-**Discount Types:**
-- **Bulk Discount**: Quantity-based discounts
-- **Tier Pricing**: Tiered pricing
-- **Bundle Discount**: Product bundle discounts
-- **Loyalty Discount**: Loyalty level-based discounts
-- **Progressive Discount**: Progressive discounts
-- **Category Discount**: Category-based discounts
-- **Seasonal Discount**: Seasonal discounts
-- **Cross-sell Discount**: Cross-selling discounts
+**Jenis Diskon:**
+- **Bulk Discount**: Diskon berdasarkan kuantitas
+- **Tier Pricing**: Harga bertingkat
+- **Bundle Discount**: Diskon paket produk
+- **Loyalty Discount**: Diskon berdasarkan tingkat loyalitas
+- **Progressive Discount**: Diskon progresif
+- **Category Discount**: Diskon berdasarkan kategori
+- **Seasonal Discount**: Diskon musiman
+- **Cross-sell Discount**: Diskon cross-selling
 
-**Example:
+**Contoh:**
 ```go
 calculator := discount.NewCalculator()
 result := calculator.CalculateBulkDiscount(discount.DiscountCalculationInput{
@@ -300,15 +300,15 @@ result := calculator.CalculateBulkDiscount(discount.DiscountCalculationInput{
 
 ### 🚚 Shipping Package
 
-Shipping cost calculation based on zones, weight, and special rules.
+Kalkulasi ongkos kirim berdasarkan zona, berat, dan aturan khusus.
 
-**Features:**
-- Shipping zones (national, international, same-day)
-- Calculation based on weight and dimensions
-- Special shipping rules
-- Delivery time estimation
+**Fitur:**
+- Zona pengiriman (nasional, internasional, same-day)
+- Kalkulasi berdasarkan berat dan dimensi
+- Aturan pengiriman khusus
+- Estimasi waktu pengiriman
 
-**Example:
+**Contoh:**
 ```go
 calculator := shipping.NewCalculator()
 result := calculator.Calculate(shipping.CalculationInput{
@@ -320,15 +320,15 @@ result := calculator.Calculate(shipping.CalculationInput{
 
 ### 📊 Tax Package
 
-Flexible tax system with various tax types.
+Sistem pajak yang fleksibel dengan berbagai jenis pajak.
 
-**Tax Types:**
-- **VAT**: Value Added Tax
-- **Sales Tax**: Sales Tax
-- **Luxury Tax**: Luxury Goods Tax
-- **Import Tax**: Import Tax
+**Jenis Pajak:**
+- **VAT**: Pajak Pertambahan Nilai
+- **Sales Tax**: Pajak Penjualan
+- **Luxury Tax**: Pajak Barang Mewah
+- **Import Tax**: Pajak Impor
 
-**Example:
+**Contoh:**
 ```go
 calculator := tax.NewCalculator()
 result := calculator.Calculate(tax.CalculationInput{
@@ -340,15 +340,15 @@ result := calculator.Calculate(tax.CalculationInput{
 
 ### 💎 Loyalty Package
 
-Loyalty program with points system, tiers, and rewards.
+Program loyalitas dengan sistem poin, tier, dan reward.
 
-**Features:**
-- Loyalty points system
-- Customer tiers (Bronze, Silver, Gold, Platinum)
-- Rewards and benefits
-- Loyalty transaction tracking
+**Fitur:**
+- Sistem poin loyalitas
+- Tier pelanggan (Bronze, Silver, Gold, Platinum)
+- Reward dan benefit
+- Tracking transaksi loyalitas
 
-**Example:
+**Contoh:**
 ```go
 calculator := loyalty.NewCalculator()
 result := calculator.CalculatePoints(loyalty.PointsCalculationInput{
@@ -360,15 +360,15 @@ result := calculator.CalculatePoints(loyalty.PointsCalculationInput{
 
 ### 💲 Pricing Package
 
-Pricing system with bundling and tier pricing support.
+Sistem pricing dengan dukungan bundling dan tier pricing.
 
-**Features:**
-- Base price calculation
+**Fitur:**
+- Kalkulasi harga dasar
 - Bundle pricing
 - Tier pricing
 - Dynamic pricing
 
-**Example:
+**Contoh:**
 ```go
 calculator := pricing.NewCalculator()
 result := calculator.Calculate(pricing.CalculationInput{
@@ -379,14 +379,14 @@ result := calculator.Calculate(pricing.CalculationInput{
 
 ### 🔧 Utils Package
 
-Common utilities for mathematics and generators.
+Utilitas umum untuk matematika dan generator.
 
-**Features:**
-- Mathematical functions (Round, Percentage, etc.)
-- Unique ID generator
-- Random code generator
+**Fitur:**
+- Fungsi matematika (Round, Percentage, etc.)
+- Generator ID unik
+- Generator kode random
 
-**Example:
+**Contoh:**
 ```go
 // Math utilities
 rounded := utils.Round(123.456, 2) // 123.46
@@ -397,7 +397,7 @@ id := utils.GenerateID()
 code := utils.GenerateCode(8)
 ```
 
-## 🚀 Usage Examples
+## 🚀 Contoh Penggunaan
 
 ### Complete Order Example
 
@@ -419,46 +419,46 @@ func main() {
     // 1. Setup Currency
     currencyCalc := currency.NewCalculator()
     currencyCalc.SetExchangeRate("USD", "IDR", 15000.0)
-    
+
     // 2. Calculate Base Pricing
     pricingCalc := pricing.NewCalculator()
     items := []pricing.Item{
         {ID: "item1", BasePrice: 100.0, Quantity: 2},
         {ID: "item2", BasePrice: 50.0, Quantity: 1},
     }
-    
+
     pricingResult := pricingCalc.Calculate(pricing.CalculationInput{
         Items: items,
         CustomerTier: "gold",
     })
-    
+
     // 3. Apply Discounts
     discountCalc := discount.NewCalculator()
     discountResult := discountCalc.CalculateBulkDiscount(/* ... */)
-    
+
     // 4. Apply Coupons
     couponCalc := coupon.NewCalculator()
     couponResult := couponCalc.Calculate(/* ... */)
-    
+
     // 5. Calculate Shipping
     shippingCalc := shipping.NewCalculator()
     shippingResult := shippingCalc.Calculate(/* ... */)
-    
+
     // 6. Calculate Tax
     taxCalc := tax.NewCalculator()
     taxResult := taxCalc.Calculate(/* ... */)
-    
+
     // 7. Process Loyalty
     loyaltyCalc := loyalty.NewCalculator()
     loyaltyResult := loyaltyCalc.CalculatePoints(/* ... */)
-    
+
     // 8. Final Order Total
-    finalTotal := pricingResult.TotalAmount - 
-                 discountResult.TotalDiscount - 
-                 couponResult.DiscountAmount + 
-                 shippingResult.Cost + 
+    finalTotal := pricingResult.TotalAmount -
+                 discountResult.TotalDiscount -
+                 couponResult.DiscountAmount +
+                 shippingResult.Cost +
                  taxResult.TotalTax
-    
+
     fmt.Printf("Final Order Total: %.2f\n", finalTotal)
 }
 ```
@@ -484,15 +484,15 @@ go test -v ./...
 
 ## 📈 Performance
 
-This engine is designed for high performance with:
+Engine ini dirancang untuk performa tinggi dengan:
 - Minimal memory allocation
 - Efficient algorithms
 - Concurrent processing support
-- Caching for frequently used operations
+- Caching untuk operasi yang sering digunakan
 
-## 🔧 Configuration
+## 🔧 Konfigurasi
 
-Each package can be configured according to your needs:
+Setiap package dapat dikonfigurasi sesuai kebutuhan:
 
 ```go
 // Currency configuration
@@ -520,10 +520,10 @@ taxConfig := tax.Config{
 
 ### Development Guidelines
 
-- Follow Go coding standards
-- Write unit tests for all new features
-- Update documentation if necessary
-- Ensure all tests pass before submitting PR
+- Ikuti Go coding standards
+- Tulis unit tests untuk semua fitur baru
+- Update dokumentasi jika diperlukan
+- Pastikan semua tests pass sebelum submit PR
 
 ## 📄 License
 
@@ -531,15 +531,15 @@ MIT License - lihat file [LICENSE](LICENSE) untuk detail.
 
 ## 🙏 Acknowledgments
 
-- Inspired by various e-commerce platforms
-- Uses best practices from Go community
-- Thanks to all contributors
+- Terinspirasi dari berbagai e-commerce platform
+- Menggunakan best practices dari Go community
+- Terima kasih kepada semua contributor
 
 ## 📞 Support
 
-If you have questions or need help:
-- Open an issue on GitHub
+Jika ada pertanyaan atau butuh bantuan:
+- Buka issue di GitHub
 
 ---
 
-**E-Commerce Engine** - Complete solution for your e-commerce needs! 🚀
+**E-Commerce Engine** - Solusi lengkap untuk kebutuhan e-commerce Anda! 🚀
