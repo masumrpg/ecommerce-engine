@@ -28,14 +28,14 @@ A comprehensive and modular e-commerce engine written in Go, providing various f
 
 ```bash
 # Install module
-go get github.com/yourusername/ecommerce-engine
+go get github.com/masumrpg/ecommerce-engine
 
 # Or if you want to use it as a dependency in your project
 go mod init your-project-name
-go get github.com/yourusername/ecommerce-engine
+go get github.com/masumrpg/ecommerce-engine
 
 # Clone for development (optional)
-git clone https://github.com/yourusername/ecommerce-engine.git
+git clone https://github.com/masumrpg/ecommerce-engine.git
 cd ecommerce-engine
 go mod tidy
 
@@ -53,15 +53,15 @@ To use this module in your Go project:
 ```bash
 # In your Go project
 go mod init your-project-name
-go get github.com/yourusername/ecommerce-engine
+go get github.com/masumrpg/ecommerce-engine
 ```
 
 Then import the required packages:
 
 ```go
 import (
-    "github.com/yourusername/ecommerce-engine/pkg/currency"
-    "github.com/yourusername/ecommerce-engine/pkg/coupon"
+    "github.com/masumrpg/ecommerce-engine/pkg/currency"
+    "github.com/masumrpg/ecommerce-engine/pkg/coupon"
     // ... other packages as needed
 )
 ```
@@ -126,7 +126,7 @@ graph TB
         G --> H[Loyalty Engine]
         H --> I[Final Order]
     end
-    
+
     subgraph "Core Packages"
         J[Currency]
         K[Pricing]
@@ -137,7 +137,7 @@ graph TB
         P[Loyalty]
         Q[Utils]
     end
-    
+
     B -.-> J
     C -.-> K
     D -.-> L
@@ -161,26 +161,26 @@ flowchart TD
     Currency -->|Yes| CurrConv[Convert Currency]
     Currency -->|No| Pricing[Calculate Base Pricing]
     CurrConv --> Pricing
-    
+
     Pricing --> Bundle{Bundle\nDiscount?}
     Bundle -->|Yes| BundleCalc[Apply Bundle Discount]
     Bundle -->|No| Discount[Calculate Discounts]
     BundleCalc --> Discount
-    
+
     Discount --> Coupon[Apply Coupons]
     Coupon --> Shipping[Calculate Shipping]
     Shipping --> Tax[Calculate Tax]
     Tax --> Loyalty[Process Loyalty Points]
     Loyalty --> Final[Final Order Total]
     Final --> End([End])
-    
+
     subgraph "Validation Layer"
         V1[Coupon Validation]
         V2[Discount Validation]
         V3[Shipping Rules]
         V4[Tax Rules]
     end
-    
+
     Coupon -.-> V1
     Discount -.-> V2
     Shipping -.-> V3
@@ -199,25 +199,25 @@ sequenceDiagram
     participant Shipping
     participant Tax
     participant Loyalty
-    
+
     Client->>Currency: Convert base currency
     Currency-->>Client: Converted amounts
-    
+
     Client->>Pricing: Calculate base prices
     Pricing-->>Client: Base pricing
-    
+
     Client->>Discount: Apply discounts
     Discount-->>Client: Discounted prices
-    
+
     Client->>Coupon: Apply coupons
     Coupon-->>Client: Final item prices
-    
+
     Client->>Shipping: Calculate shipping
     Shipping-->>Client: Shipping cost
-    
+
     Client->>Tax: Calculate taxes
     Tax-->>Client: Tax amounts
-    
+
     Client->>Loyalty: Process loyalty
     Loyalty-->>Client: Loyalty points & rewards
 ```
@@ -406,59 +406,59 @@ package main
 
 import (
     "fmt"
-    "github.com/yourusername/ecommerce-engine/pkg/currency"
-    "github.com/yourusername/ecommerce-engine/pkg/pricing"
-    "github.com/yourusername/ecommerce-engine/pkg/discount"
-    "github.com/yourusername/ecommerce-engine/pkg/coupon"
-    "github.com/yourusername/ecommerce-engine/pkg/shipping"
-    "github.com/yourusername/ecommerce-engine/pkg/tax"
-    "github.com/yourusername/ecommerce-engine/pkg/loyalty"
+    "github.com/masumrpg/ecommerce-engine/pkg/currency"
+    "github.com/masumrpg/ecommerce-engine/pkg/pricing"
+    "github.com/masumrpg/ecommerce-engine/pkg/discount"
+    "github.com/masumrpg/ecommerce-engine/pkg/coupon"
+    "github.com/masumrpg/ecommerce-engine/pkg/shipping"
+    "github.com/masumrpg/ecommerce-engine/pkg/tax"
+    "github.com/masumrpg/ecommerce-engine/pkg/loyalty"
 )
 
 func main() {
     // 1. Setup Currency
     currencyCalc := currency.NewCalculator()
     currencyCalc.SetExchangeRate("USD", "IDR", 15000.0)
-    
+
     // 2. Calculate Base Pricing
     pricingCalc := pricing.NewCalculator()
     items := []pricing.Item{
         {ID: "item1", BasePrice: 100.0, Quantity: 2},
         {ID: "item2", BasePrice: 50.0, Quantity: 1},
     }
-    
+
     pricingResult := pricingCalc.Calculate(pricing.CalculationInput{
         Items: items,
         CustomerTier: "gold",
     })
-    
+
     // 3. Apply Discounts
     discountCalc := discount.NewCalculator()
     discountResult := discountCalc.CalculateBulkDiscount(/* ... */)
-    
+
     // 4. Apply Coupons
     couponCalc := coupon.NewCalculator()
     couponResult := couponCalc.Calculate(/* ... */)
-    
+
     // 5. Calculate Shipping
     shippingCalc := shipping.NewCalculator()
     shippingResult := shippingCalc.Calculate(/* ... */)
-    
+
     // 6. Calculate Tax
     taxCalc := tax.NewCalculator()
     taxResult := taxCalc.Calculate(/* ... */)
-    
+
     // 7. Process Loyalty
     loyaltyCalc := loyalty.NewCalculator()
     loyaltyResult := loyaltyCalc.CalculatePoints(/* ... */)
-    
+
     // 8. Final Order Total
-    finalTotal := pricingResult.TotalAmount - 
-                 discountResult.TotalDiscount - 
-                 couponResult.DiscountAmount + 
-                 shippingResult.Cost + 
+    finalTotal := pricingResult.TotalAmount -
+                 discountResult.TotalDiscount -
+                 couponResult.DiscountAmount +
+                 shippingResult.Cost +
                  taxResult.TotalTax
-    
+
     fmt.Printf("Final Order Total: %.2f\n", finalTotal)
 }
 ```

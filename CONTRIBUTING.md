@@ -5,7 +5,7 @@ Thank you for your interest in contributing to the E-commerce Engine! We welcome
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/ecommerce-engine.git`
+2. Clone your fork: `git clone https://github.com/masumrpg/ecommerce-engine.git`
 3. Create a new branch: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Test your changes
@@ -24,7 +24,7 @@ Thank you for your interest in contributing to the E-commerce Engine! We welcome
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ecommerce-engine.git
+git clone https://github.com/masumrpg/ecommerce-engine.git
 cd ecommerce-engine
 
 # Download dependencies

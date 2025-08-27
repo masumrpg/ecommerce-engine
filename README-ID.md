@@ -28,14 +28,14 @@ Sebuah engine e-commerce yang komprehensif dan modular yang ditulis dalam Go, me
 
 ```bash
 # Install module
-go get github.com/yourusername/ecommerce-engine
+go get github.com/masumrpg/ecommerce-engine
 
 # Atau jika ingin menggunakan sebagai dependency dalam project
 go mod init your-project-name
-go get github.com/yourusername/ecommerce-engine
+go get github.com/masumrpg/ecommerce-engine
 
 # Clone untuk development (opsional)
-git clone https://github.com/yourusername/ecommerce-engine.git
+git clone https://github.com/masumrpg/ecommerce-engine.git
 cd ecommerce-engine
 go mod tidy
 
@@ -53,15 +53,15 @@ Untuk menggunakan module ini dalam project Go Anda:
 ```bash
 # Dalam project Go Anda
 go mod init your-project-name
-go get github.com/yourusername/ecommerce-engine
+go get github.com/masumrpg/ecommerce-engine
 ```
 
 Kemudian import package yang dibutuhkan:
 
 ```go
 import (
-    "github.com/yourusername/ecommerce-engine/pkg/currency"
-    "github.com/yourusername/ecommerce-engine/pkg/coupon"
+    "github.com/masumrpg/ecommerce-engine/pkg/currency"
+    "github.com/masumrpg/ecommerce-engine/pkg/coupon"
     // ... package lainnya sesuai kebutuhan
 )
 ```
@@ -406,13 +406,13 @@ package main
 
 import (
     "fmt"
-    "github.com/yourusername/ecommerce-engine/pkg/currency"
-    "github.com/yourusername/ecommerce-engine/pkg/pricing"
-    "github.com/yourusername/ecommerce-engine/pkg/discount"
-    "github.com/yourusername/ecommerce-engine/pkg/coupon"
-    "github.com/yourusername/ecommerce-engine/pkg/shipping"
-    "github.com/yourusername/ecommerce-engine/pkg/tax"
-    "github.com/yourusername/ecommerce-engine/pkg/loyalty"
+    "github.com/masumrpg/ecommerce-engine/pkg/currency"
+    "github.com/masumrpg/ecommerce-engine/pkg/pricing"
+    "github.com/masumrpg/ecommerce-engine/pkg/discount"
+    "github.com/masumrpg/ecommerce-engine/pkg/coupon"
+    "github.com/masumrpg/ecommerce-engine/pkg/shipping"
+    "github.com/masumrpg/ecommerce-engine/pkg/tax"
+    "github.com/masumrpg/ecommerce-engine/pkg/loyalty"
 )
 
 func main() {
