@@ -321,16 +321,6 @@ func (g *TokenGenerator) GenerateAPIKey(prefix string) string {
 	return token
 }
 
-// GenerateSessionToken generates a session token
-func (g *TokenGenerator) GenerateSessionToken() string {
-	return g.GenerateSecureToken(64)
-}
-
-// GenerateRefreshToken generates a refresh token
-func (g *TokenGenerator) GenerateRefreshToken() string {
-	return g.GenerateSecureToken(128)
-}
-
 // GenerateOTP generates a one-time password
 func (g *TokenGenerator) GenerateOTP(length int) string {
 	if length <= 0 {
@@ -354,8 +344,8 @@ type ReferenceGenerator struct {
 // NewReferenceGenerator creates a new reference generator
 func NewReferenceGenerator(prefix, suffix string, length int) *ReferenceGenerator {
 	return &ReferenceGenerator{
-		prefix: prefix,
-		suffix: suffix,
+		prefix: prefix + "-",
+		suffix: "-" + suffix,
 		length: length,
 	}
 }

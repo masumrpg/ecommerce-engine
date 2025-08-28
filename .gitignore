@@ -62,3 +62,6 @@ dist/
 
 # Documentation build
 docs/_build/
+
+# Entry point
+main.go
