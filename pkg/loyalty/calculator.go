@@ -1,3 +1,42 @@
+// Package loyalty provides comprehensive loyalty points calculation and management functionality.
+// It supports multi-tier loyalty programs with flexible rules, point earning mechanisms,
+// redemption systems, referral programs, and review rewards.
+//
+// Key Features:
+//   - Multi-tier loyalty system (Bronze, Silver, Gold, Platinum)
+//   - Flexible rule-based point earning
+//   - Point redemption with tier-based bonuses
+//   - Referral program management
+//   - Review reward system
+//   - Automatic tier upgrades
+//   - Point expiry management
+//   - Transaction tracking
+//   - Personalized recommendations
+//
+// Basic Usage:
+//
+//	config := &LoyaltyConfiguration{
+//		BasePointsRate: 1.0, // 1 point per dollar
+//		PointsExpiry:   12,  // 12 months
+//		MinRedemption:  100, // minimum 100 points
+//	}
+//
+//	calculator := NewCalculator(config)
+//
+//	// Calculate points for a purchase
+//	input := PointsCalculationInput{
+//		Customer:    customer,
+//		OrderAmount: 150.00,
+//		Items:       items,
+//		Timestamp:   time.Now(),
+//	}
+//
+//	result, err := calculator.Calculate(input)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	fmt.Printf("Points earned: %d\n", result.TotalPoints)
 package loyalty
 
 import (
@@ -8,14 +47,66 @@ import (
 	"time"
 )
 
-// Calculator handles loyalty points calculations
+// Calculator handles loyalty points calculations and management operations.
+// It provides a comprehensive system for calculating points, managing tiers,
+// processing redemptions, and generating recommendations.
+//
+// The Calculator supports:
+//   - Base point calculations with configurable rates
+//   - Tier-based multipliers and benefits
+//   - Rule-based bonus point systems
+//   - Point redemption with tier bonuses
+//   - Referral program rewards
+//   - Review-based point earning
+//   - Automatic tier progression
+//   - Point expiry management
+//
+// Example:
+//
+//	config := &LoyaltyConfiguration{
+//		BasePointsRate: 1.0,
+//		PointsExpiry:   12,
+//		TierThresholds: map[LoyaltyTier]float64{
+//			TierSilver:   1000,
+//			TierGold:     5000,
+//			TierPlatinum: 15000,
+//		},
+//	}
+//
+//	calculator := NewCalculator(config)
 type Calculator struct {
 	config *LoyaltyConfiguration
 	rules  []LoyaltyRule
 	tierBenefits map[LoyaltyTier]TierBenefit
 }
 
-// NewCalculator creates a new loyalty calculator
+// NewCalculator creates a new loyalty calculator with the provided configuration.
+// It initializes the calculator with default rules and tier benefits from the configuration.
+//
+// The calculator is configured with:
+//   - Base points rate for purchase calculations
+//   - Default loyalty rules for bonus points
+//   - Tier benefits and thresholds
+//   - Point expiry settings
+//   - Minimum redemption amounts
+//
+// Parameters:
+//   - config: LoyaltyConfiguration containing all loyalty program settings
+//
+// Returns:
+//   - *Calculator: A new calculator instance ready for use
+//
+// Example:
+//
+//	config := &LoyaltyConfiguration{
+//		BasePointsRate: 1.0,
+//		PointsExpiry:   12,
+//		MinRedemption:  100,
+//		DefaultRules:   []LoyaltyRule{...},
+//		TierBenefits:   map[LoyaltyTier]TierBenefit{...},
+//	}
+//
+//	calculator := NewCalculator(config)
 func NewCalculator(config *LoyaltyConfiguration) *Calculator {
 	return &Calculator{
 		config: config,
@@ -24,7 +115,48 @@ func NewCalculator(config *LoyaltyConfiguration) *Calculator {
 	}
 }
 
-// Calculate calculates loyalty points for a purchase
+// Calculate calculates loyalty points for a purchase transaction.
+// It processes base points, tier multipliers, applicable rules, and generates
+// a comprehensive result with point breakdown, tier information, and recommendations.
+//
+// The calculation process includes:
+//   - Base points calculation using configured rate
+//   - Tier-based point multipliers and bonuses
+//   - Application of eligible loyalty rules
+//   - Tier progression evaluation
+//   - Point expiry date calculation
+//   - Transaction record creation
+//   - Personalized recommendations generation
+//
+// Parameters:
+//   - input: PointsCalculationInput containing customer, order, and transaction details
+//
+// Returns:
+//   - *PointsCalculationResult: Comprehensive calculation result with points breakdown
+//   - error: Error if input validation fails or calculation encounters issues
+//
+// Example:
+//
+//	input := PointsCalculationInput{
+//		Customer: Customer{
+//			ID:           "cust123",
+//			Tier:         TierSilver,
+//			CurrentPoints: 500,
+//			AnnualSpend:  2500,
+//		},
+//		OrderAmount:     150.00,
+//		Items:          []OrderItem{...},
+//		PaymentMethod:   "credit_card",
+//		Channel:        "online",
+//		Timestamp:      time.Now(),
+//	}
+//
+//	result, err := calculator.Calculate(input)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	fmt.Printf("Total points: %d\n", result.TotalPoints)
 func (c *Calculator) Calculate(input PointsCalculationInput) (*PointsCalculationResult, error) {
 	if err := c.validateInput(input); err != nil {
 		return nil, fmt.Errorf("invalid input: %w", err)
@@ -95,7 +227,49 @@ func (c *Calculator) Calculate(input PointsCalculationInput) (*PointsCalculation
 	return result, nil
 }
 
-// RedeemPoints redeems points for rewards
+// RedeemPoints processes point redemption for rewards.
+// It validates the redemption request, applies tier-based bonuses,
+// and creates the redemption transaction.
+//
+// The redemption process includes:
+//   - Validation of customer eligibility and point balance
+//   - Reward availability and tier requirement checks
+//   - Application of tier-based redemption bonuses
+//   - Calculation of discount amount and final value
+//   - Generation of redemption code and transaction
+//   - Point balance updates
+//
+// Parameters:
+//   - input: RedemptionInput containing customer and redemption details
+//   - reward: Reward being redeemed with cost and value information
+//
+// Returns:
+//   - *RedemptionResult: Complete redemption result with transaction details
+//   - error: Error if validation fails or redemption cannot be processed
+//
+// Example:
+//
+//	input := RedemptionInput{
+//		Customer: Customer{
+//			ID:           "cust123",
+//			Tier:         TierGold,
+//			CurrentPoints: 1000,
+//		},
+//		RewardID:  "reward456",
+//		Quantity:  1,
+//		Channel:   "mobile",
+//		Timestamp: time.Now(),
+//	}
+//
+//	reward := Reward{
+//		ID:         "reward456",
+//		Name:       "$10 Discount",
+//		PointsCost: 500,
+//		Value:      10.00,
+//		IsActive:   true,
+//	}
+//
+//	result, err := calculator.RedeemPoints(input, reward)
 func (c *Calculator) RedeemPoints(input RedemptionInput, reward Reward) (*RedemptionResult, error) {
 	if err := c.validateRedemptionInput(input, reward); err != nil {
 		return nil, fmt.Errorf("invalid redemption input: %w", err)
@@ -155,7 +329,47 @@ func (c *Calculator) RedeemPoints(input RedemptionInput, reward Reward) (*Redemp
 	return result, nil
 }
 
-// CalculateReferralReward calculates referral rewards
+// CalculateReferralReward calculates points awarded for successful referrals.
+// It validates the referral program conditions and calculates rewards for the referrer
+// when a referee makes a qualifying purchase.
+//
+// The calculation includes:
+//   - Referral program activation and validity checks
+//   - Minimum order amount threshold validation
+//   - Referrer reward point calculation
+//   - Transaction record creation with referee information
+//   - Point balance updates for the referrer
+//
+// Parameters:
+//   - referrer: Customer who made the referral
+//   - referee: Customer who was referred and made the purchase
+//   - program: ReferralProgram containing reward rules and thresholds
+//   - orderAmount: Amount of the referee's qualifying order
+//
+// Returns:
+//   - *PointsCalculationResult: Calculation result with referral points
+//   - error: Error if program is inactive or order doesn't meet requirements
+//
+// Example:
+//
+//	referrer := Customer{
+//		ID:           "ref123",
+//		CurrentPoints: 500,
+//	}
+//
+//	referee := Customer{
+//		ID:    "new456",
+//		Email: "newcustomer@example.com",
+//	}
+//
+//	program := ReferralProgram{
+//		ID:             "ref_prog_1",
+//		IsActive:       true,
+//		ReferrerReward: 100,
+//		MinOrderAmount: 50.00,
+//	}
+//
+//	result, err := calculator.CalculateReferralReward(referrer, referee, program, 75.00)
 func (c *Calculator) CalculateReferralReward(referrer Customer, referee Customer, program ReferralProgram, orderAmount float64) (*PointsCalculationResult, error) {
 	if !program.IsActive {
 		return nil, fmt.Errorf("referral program is not active")
@@ -204,7 +418,50 @@ func (c *Calculator) CalculateReferralReward(referrer Customer, referee Customer
 	return result, nil
 }
 
-// CalculateReviewReward calculates review rewards
+// CalculateReviewReward calculates points awarded for product reviews.
+// It evaluates review quality factors and applies appropriate bonuses
+// based on review content, media attachments, and verification status.
+//
+// The calculation includes:
+//   - Base points for meeting minimum requirements
+//   - Photo attachment bonus points
+//   - Video attachment bonus points
+//   - Verified purchase bonus points
+//   - Rating and length validation
+//   - Transaction record creation
+//
+// Parameters:
+//   - customer: Customer who submitted the review
+//   - reward: ReviewReward configuration with point values and requirements
+//   - hasPhoto: Whether the review includes photo attachments
+//   - hasVideo: Whether the review includes video attachments
+//   - isVerified: Whether the review is from a verified purchase
+//   - rating: Star rating given in the review (1-5)
+//   - reviewLength: Character count of the review text
+//
+// Returns:
+//   - *PointsCalculationResult: Calculation result with review points breakdown
+//   - error: Error if review doesn't meet minimum requirements
+//
+// Example:
+//
+//	customer := Customer{
+//		ID:           "cust123",
+//		CurrentPoints: 200,
+//	}
+//
+//	reward := ReviewReward{
+//		ID:            "review_reward_1",
+//		IsActive:      true,
+//		BasePoints:    25,
+//		PhotoBonus:    10,
+//		VideoBonus:    15,
+//		VerifiedBonus: 5,
+//		MinRating:     3,
+//		MinCharacters: 50,
+//	}
+//
+//	result, err := calculator.CalculateReviewReward(customer, reward, true, false, true, 5, 150)
 func (c *Calculator) CalculateReviewReward(customer Customer, reward ReviewReward, hasPhoto, hasVideo, isVerified bool, rating int, reviewLength int) (*PointsCalculationResult, error) {
 	if !reward.IsActive {
 		return nil, fmt.Errorf("review reward is not active")
@@ -304,7 +561,41 @@ func (c *Calculator) CalculateReviewReward(customer Customer, reward ReviewRewar
 	return result, nil
 }
 
-// GetAvailableRewards returns available rewards for a customer
+// GetAvailableRewards filters and returns rewards that a customer can redeem.
+// It checks point balance, tier requirements, availability dates, and stock levels
+// to determine which rewards are currently accessible to the customer.
+//
+// The filtering includes:
+//   - Point balance sufficiency checks
+//   - Customer tier requirement validation
+//   - Reward activation status verification
+//   - Validity date range checks
+//   - Stock availability confirmation
+//   - Results sorted by points cost (ascending)
+//
+// Parameters:
+//   - customer: Customer for whom to check reward availability
+//   - rewards: Complete list of rewards to filter
+//
+// Returns:
+//   - []Reward: Filtered list of available rewards sorted by cost
+//
+// Example:
+//
+//	customer := Customer{
+//		ID:           "cust123",
+//		Tier:         TierSilver,
+//		CurrentPoints: 750,
+//	}
+//
+//	allRewards := []Reward{
+//		{ID: "r1", PointsCost: 500, RequiredTier: TierBronze},
+//		{ID: "r2", PointsCost: 1000, RequiredTier: TierSilver},
+//		{ID: "r3", PointsCost: 200, RequiredTier: TierGold}, // Not available
+//	}
+//
+//	available := calculator.GetAvailableRewards(customer, allRewards)
+//	// Returns rewards r1 (500 points) - customer has enough points and meets tier
 func (c *Calculator) GetAvailableRewards(customer Customer, rewards []Reward) []Reward {
 	available := make([]Reward, 0)
 
@@ -322,12 +613,26 @@ func (c *Calculator) GetAvailableRewards(customer Customer, rewards []Reward) []
 	return available
 }
 
-// calculateBasePoints calculates base points from purchase amount
+// calculateBasePoints calculates base points from purchase amount.
+// It applies the configured base points rate to the order amount and floors the result.
+//
+// Parameters:
+//   - input: PointsCalculationInput containing the order amount
+//
+// Returns:
+//   - int: Base points earned (floored to nearest integer)
 func (c *Calculator) calculateBasePoints(input PointsCalculationInput) int {
 	return int(math.Floor(input.OrderAmount * c.config.BasePointsRate))
 }
 
-// getTierBenefit returns tier benefits for a given tier
+// getTierBenefit returns tier benefits for a given tier.
+// If no specific benefits are configured for the tier, returns default benefits.
+//
+// Parameters:
+//   - tier: LoyaltyTier to get benefits for
+//
+// Returns:
+//   - TierBenefit: Benefits configuration for the tier
 func (c *Calculator) getTierBenefit(tier LoyaltyTier) TierBenefit {
 	if benefit, exists := c.tierBenefits[tier]; exists {
 		return benefit
@@ -335,7 +640,14 @@ func (c *Calculator) getTierBenefit(tier LoyaltyTier) TierBenefit {
 	return TierBenefit{PointsMultiplier: 1.0} // Default
 }
 
-// getApplicableRules returns rules applicable to the input
+// getApplicableRules returns rules applicable to the input.
+// It filters all configured rules based on applicability criteria and sorts by priority.
+//
+// Parameters:
+//   - input: PointsCalculationInput to evaluate rules against
+//
+// Returns:
+//   - []LoyaltyRule: Applicable rules sorted by priority (highest first)
 func (c *Calculator) getApplicableRules(input PointsCalculationInput) []LoyaltyRule {
 	applicable := make([]LoyaltyRule, 0)
 
@@ -353,7 +665,16 @@ func (c *Calculator) getApplicableRules(input PointsCalculationInput) []LoyaltyR
 	return applicable
 }
 
-// isRuleApplicable checks if a rule is applicable to the input
+// isRuleApplicable checks if a rule is applicable to the input.
+// It validates rule activation, time constraints, tier requirements,
+// payment methods, channels, and custom conditions.
+//
+// Parameters:
+//   - rule: LoyaltyRule to evaluate
+//   - input: PointsCalculationInput to check against
+//
+// Returns:
+//   - bool: True if rule is applicable, false otherwise
 func (c *Calculator) isRuleApplicable(rule LoyaltyRule, input PointsCalculationInput) bool {
 	if !rule.IsActive {
 		return false
@@ -419,7 +740,16 @@ func (c *Calculator) isRuleApplicable(rule LoyaltyRule, input PointsCalculationI
 	return true
 }
 
-// evaluateCondition evaluates a loyalty condition
+// evaluateCondition evaluates a loyalty condition against input data.
+// It supports various condition types including amount, quantity, category,
+// payment method, first purchase, and tier conditions.
+//
+// Parameters:
+//   - condition: LoyaltyCondition to evaluate
+//   - input: PointsCalculationInput containing data to evaluate
+//
+// Returns:
+//   - bool: True if condition is met, false otherwise
 func (c *Calculator) evaluateCondition(condition LoyaltyCondition, input PointsCalculationInput) bool {
 	switch condition.Type {
 	case "amount":
@@ -449,7 +779,16 @@ func (c *Calculator) evaluateCondition(condition LoyaltyCondition, input PointsC
 	}
 }
 
-// compareValues compares numeric values based on operator
+// compareValues compares numeric values based on operator.
+// Supports operators: >, >=, <, <=, =, !=
+//
+// Parameters:
+//   - actual: Actual numeric value to compare
+//   - operator: Comparison operator as string
+//   - expected: Expected value to compare against
+//
+// Returns:
+//   - bool: True if comparison is satisfied, false otherwise
 func (c *Calculator) compareValues(actual float64, operator string, expected interface{}) bool {
 	expectedFloat, err := c.toFloat64(expected)
 	if err != nil {
@@ -474,7 +813,16 @@ func (c *Calculator) compareValues(actual float64, operator string, expected int
 	}
 }
 
-// compareStringValues compares string values based on operator
+// compareStringValues compares string values based on operator.
+// Supports operators: =, !=, in (for slice membership)
+//
+// Parameters:
+//   - actual: Actual string value to compare
+//   - operator: Comparison operator as string
+//   - expected: Expected value or slice to compare against
+//
+// Returns:
+//   - bool: True if comparison is satisfied, false otherwise
 func (c *Calculator) compareStringValues(actual string, operator string, expected interface{}) bool {
 	expectedStr, ok := expected.(string)
 	if !ok {
@@ -500,7 +848,15 @@ func (c *Calculator) compareStringValues(actual string, operator string, expecte
 	}
 }
 
-// toFloat64 converts interface{} to float64
+// toFloat64 converts interface{} to float64.
+// Supports conversion from various numeric types and strings.
+//
+// Parameters:
+//   - value: Value to convert to float64
+//
+// Returns:
+//   - float64: Converted value
+//   - error: Error if conversion fails
 func (c *Calculator) toFloat64(value interface{}) (float64, error) {
 	switch v := value.(type) {
 	case float64:
@@ -518,7 +874,19 @@ func (c *Calculator) toFloat64(value interface{}) (float64, error) {
 	}
 }
 
-// applyRule applies a loyalty rule and returns bonus points
+// applyRule applies a loyalty rule and returns bonus points.
+// It processes rule actions including earning points, multiplying points,
+// and applying bonus rates, creating detailed breakdown information.
+//
+// Parameters:
+//   - rule: LoyaltyRule to apply
+//   - input: PointsCalculationInput for context
+//   - basePoints: Base points to apply multipliers to
+//
+// Returns:
+//   - int: Total bonus points awarded
+//   - []PointsBreakdown: Detailed breakdown of point calculations
+//   - AppliedLoyaltyRule: Information about the applied rule
 func (c *Calculator) applyRule(rule LoyaltyRule, input PointsCalculationInput, basePoints int) (int, []PointsBreakdown, AppliedLoyaltyRule) {
 	bonusPoints := 0
 	breakdown := make([]PointsBreakdown, 0)
@@ -585,7 +953,14 @@ func (c *Calculator) applyRule(rule LoyaltyRule, input PointsCalculationInput, b
 	return bonusPoints, breakdown, appliedRule
 }
 
-// calculateExpiryDate calculates points expiry date based on tier
+// calculateExpiryDate calculates points expiry date based on tier.
+// Uses tier-specific expiry period if available, otherwise falls back to default.
+//
+// Parameters:
+//   - tier: LoyaltyTier to calculate expiry for
+//
+// Returns:
+//   - time.Time: Expiry date for points
 func (c *Calculator) calculateExpiryDate(tier LoyaltyTier) time.Time {
 	tierBenefit := c.getTierBenefit(tier)
 	months := tierBenefit.MaxPointsExpiry
@@ -595,7 +970,16 @@ func (c *Calculator) calculateExpiryDate(tier LoyaltyTier) time.Time {
 	return time.Now().AddDate(0, months, 0)
 }
 
-// calculateTierInfo calculates tier information and progress
+// calculateTierInfo calculates tier information and progress.
+// It evaluates current tier status, progress toward next tier,
+// and handles automatic tier upgrades based on spending thresholds.
+//
+// Parameters:
+//   - customer: Customer to calculate tier info for
+//   - orderAmount: Current order amount to add to annual spend
+//
+// Returns:
+//   - TierInfo: Complete tier information including upgrade status
 func (c *Calculator) calculateTierInfo(customer Customer, orderAmount float64) TierInfo {
 	newSpend := customer.AnnualSpend + orderAmount
 	currentTier := customer.Tier
@@ -632,7 +1016,14 @@ func (c *Calculator) calculateTierInfo(customer Customer, orderAmount float64) T
 	return tierInfo
 }
 
-// getNextTier returns the next tier for a given tier
+// getNextTier returns the next tier for a given tier.
+// Returns the same tier if already at the highest level.
+//
+// Parameters:
+//   - current: Current LoyaltyTier
+//
+// Returns:
+//   - LoyaltyTier: Next tier in progression
 func (c *Calculator) getNextTier(current LoyaltyTier) LoyaltyTier {
 	switch current {
 	case TierBronze:
@@ -646,7 +1037,14 @@ func (c *Calculator) getNextTier(current LoyaltyTier) LoyaltyTier {
 	}
 }
 
-// getTierThreshold returns the spending threshold for a tier
+// getTierThreshold returns the spending threshold for a tier.
+// Returns infinity for tiers without configured thresholds (highest tier).
+//
+// Parameters:
+//   - tier: LoyaltyTier to get threshold for
+//
+// Returns:
+//   - float64: Spending threshold required for the tier
 func (c *Calculator) getTierThreshold(tier LoyaltyTier) float64 {
 	if threshold, exists := c.config.TierThresholds[tier]; exists {
 		return threshold
@@ -654,7 +1052,15 @@ func (c *Calculator) getTierThreshold(tier LoyaltyTier) float64 {
 	return math.Inf(1) // No threshold (highest tier)
 }
 
-// createTransactions creates point transactions
+// createTransactions creates point transactions for the calculation result.
+// Generates transaction records for points earned from purchases.
+//
+// Parameters:
+//   - input: PointsCalculationInput containing transaction context
+//   - result: PointsCalculationResult with calculated points
+//
+// Returns:
+//   - []PointsTransaction: Generated transaction records
 func (c *Calculator) createTransactions(input PointsCalculationInput, result *PointsCalculationResult) []PointsTransaction {
 	transactions := make([]PointsTransaction, 0)
 
@@ -680,7 +1086,15 @@ func (c *Calculator) createTransactions(input PointsCalculationInput, result *Po
 	return transactions
 }
 
-// generateRecommendations generates loyalty recommendations
+// generateRecommendations generates loyalty recommendations for the customer.
+// Creates personalized suggestions for tier upgrades and point redemptions.
+//
+// Parameters:
+//   - customer: Customer to generate recommendations for
+//   - result: PointsCalculationResult with current calculation data
+//
+// Returns:
+//   - []LoyaltyRecommendation: Personalized recommendations
 func (c *Calculator) generateRecommendations(customer Customer, result *PointsCalculationResult) []LoyaltyRecommendation {
 	recommendations := make([]LoyaltyRecommendation, 0)
 
@@ -711,7 +1125,15 @@ func (c *Calculator) generateRecommendations(customer Customer, result *PointsCa
 	return recommendations
 }
 
-// isRewardAvailable checks if a reward is available for a customer
+// isRewardAvailable checks if a reward is available for a customer.
+// Validates reward status, point balance, tier requirements, dates, and stock.
+//
+// Parameters:
+//   - customer: Customer to check reward availability for
+//   - reward: Reward to validate availability
+//
+// Returns:
+//   - bool: True if reward is available for redemption
 func (c *Calculator) isRewardAvailable(customer Customer, reward Reward) bool {
 	if !reward.IsActive {
 		return false
@@ -740,7 +1162,14 @@ func (c *Calculator) isRewardAvailable(customer Customer, reward Reward) bool {
 	return true
 }
 
-// validateInput validates points calculation input
+// validateInput validates points calculation input.
+// Ensures all required fields are present and valid for calculation.
+//
+// Parameters:
+//   - input: PointsCalculationInput to validate
+//
+// Returns:
+//   - error: Validation error if input is invalid, nil if valid
 func (c *Calculator) validateInput(input PointsCalculationInput) error {
 	if input.Customer.ID == "" {
 		return fmt.Errorf("customer ID is required")
@@ -757,7 +1186,15 @@ func (c *Calculator) validateInput(input PointsCalculationInput) error {
 	return nil
 }
 
-// validateRedemptionInput validates redemption input
+// validateRedemptionInput validates redemption input.
+// Checks customer, reward, and quantity validity for redemption processing.
+//
+// Parameters:
+//   - input: RedemptionInput to validate
+//   - reward: Reward being redeemed
+//
+// Returns:
+//   - error: Validation error if input is invalid, nil if valid
 func (c *Calculator) validateRedemptionInput(input RedemptionInput, reward Reward) error {
 	if input.Customer.ID == "" {
 		return fmt.Errorf("customer ID is required")
@@ -795,12 +1232,20 @@ func (c *Calculator) validateRedemptionInput(input RedemptionInput, reward Rewar
 	return nil
 }
 
-// generateTransactionID generates a unique transaction ID
+// generateTransactionID generates a unique transaction ID.
+// Uses current timestamp nanoseconds for uniqueness.
+//
+// Returns:
+//   - string: Unique transaction identifier
 func (c *Calculator) generateTransactionID() string {
 	return fmt.Sprintf("txn_%d", time.Now().UnixNano())
 }
 
-// generateRedemptionCode generates a unique redemption code
+// generateRedemptionCode generates a unique redemption code.
+// Creates a short code for customer use with reward redemptions.
+//
+// Returns:
+//   - string: Unique redemption code
 func (c *Calculator) generateRedemptionCode() string {
 	return fmt.Sprintf("RED%d", time.Now().UnixNano()%1000000)
 }

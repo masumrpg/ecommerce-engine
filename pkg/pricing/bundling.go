@@ -1,3 +1,49 @@
+// Package pricing provides comprehensive bundle management functionality for e-commerce applications.
+// This package enables creating, managing, and optimizing product bundles with advanced features
+// including dynamic pricing, rule-based bundling, performance analytics, and AI-driven recommendations.
+//
+// Key Features:
+//   - Dynamic Bundle Creation: Create bundles from templates or custom configurations
+//   - Rule-Based Bundling: Apply complex business rules for bundle eligibility and pricing
+//   - Multiple Bundle Types: Support for fixed, mix-and-match, and frequency-based bundles
+//   - Performance Analytics: Track bundle performance with detailed metrics
+//   - Optimization Engine: Automatically optimize bundles based on performance data
+//   - Recommendation System: Generate personalized bundle recommendations
+//   - Cross-sell and Upsell: Intelligent product recommendations
+//   - Constraint Management: Enforce business rules and inventory constraints
+//
+// Basic Usage:
+//
+//	// Create a new bundle manager
+//	bm := pricing.NewBundleManager()
+//
+//	// Create a simple bundle
+//	items := []pricing.PricingItem{
+//		{ID: "item1", Name: "Product A", BasePrice: 50.0, Category: "electronics"},
+//		{ID: "item2", Name: "Product B", BasePrice: 30.0, Category: "accessories"},
+//	}
+//
+//	pricing := pricing.BundlePricing{
+//		Type: "percentage",
+//		Value: 15.0, // 15% discount
+//	}
+//
+//	bundle, err := bm.CreateBundle("Tech Bundle", "Electronics with accessories", pricing.BundleTypeFixed, items, pricing)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	// Generate recommendations
+//	recommendations, err := bm.GenerateBundleRecommendations(items, customer, context)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	// Optimize existing bundle
+//	optimization, err := bm.OptimizeBundle(bundle.ID)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
 package pricing
 
 import (
@@ -7,7 +53,36 @@ import (
 	"time"
 )
 
-// BundleManager handles bundle creation and management
+// BundleManager handles comprehensive bundle creation, management, and optimization.
+// It provides a centralized system for managing product bundles with support for
+// templates, rules, analytics, and intelligent recommendations.
+//
+// Features:
+//   - Bundle lifecycle management (create, update, optimize, analyze)
+//   - Template-based bundle creation for consistency
+//   - Rule engine for dynamic bundle behavior
+//   - Performance analytics and optimization
+//   - AI-driven bundle recommendations
+//   - Cross-sell and upsell capabilities
+//
+// Example:
+//
+//	bm := pricing.NewBundleManager()
+//
+//	// Add bundle rules
+//	rule := pricing.BundleRule{
+//		ID: "electronics_discount",
+//		Name: "Electronics Bundle Discount",
+//		Type: "inclusion",
+//		Conditions: []pricing.BundleCondition{
+//			{Type: "category", Operator: "=", Value: "electronics"},
+//		},
+//		Actions: []pricing.BundleAction{
+//			{Type: "apply_discount", Value: 20.0},
+//		},
+//		IsActive: true,
+//	}
+//	bm.AddBundleRule(rule)
 type BundleManager struct {
 	bundles         []Bundle
 	bundleTemplates []BundleTemplate
@@ -15,7 +90,25 @@ type BundleManager struct {
 	analytics       map[string]BundleAnalytics
 }
 
-// BundleTemplate represents a template for creating bundles
+// BundleTemplate represents a reusable template for creating bundles.
+// Templates provide consistency and efficiency in bundle creation by defining
+// standard configurations that can be applied to different sets of items.
+//
+// Example:
+//
+//	template := &BundleTemplate{
+//		ID: "electronics_template",
+//		Name: "Electronics Bundle Template",
+//		Description: "Standard template for electronics bundles",
+//		Type: BundleTypeFixed,
+//		Pricing: BundlePricing{Type: "percentage", Value: 15.0},
+//		Constraints: BundleConstraints{
+//			MinItems: 2,
+//			MaxItems: 5,
+//			RequiredCategories: []string{"electronics"},
+//		},
+//		IsActive: true,
+//	}
 type BundleTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -28,7 +121,32 @@ type BundleTemplate struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// BundleRule represents rules for bundle creation
+// BundleRule represents business rules that govern bundle creation and behavior.
+// Rules define conditions that must be met and actions to take when those
+// conditions are satisfied, enabling dynamic bundle management.
+//
+// Rule Types:
+//   - "inclusion": Include items that meet conditions
+//   - "exclusion": Exclude items that meet conditions
+//   - "requirement": Require certain conditions to be met
+//   - "substitution": Replace items based on conditions
+//
+// Example:
+//
+//	rule := &BundleRule{
+//		ID: "premium_discount",
+//		Name: "Premium Customer Discount",
+//		Type: "inclusion",
+//		Conditions: []BundleCondition{
+//			{Type: "customer_type", Operator: "=", Value: "premium"},
+//			{Type: "price_range", Operator: ">=", Value: 100.0, Logic: "AND"},
+//		},
+//		Actions: []BundleAction{
+//			{Type: "apply_discount", Value: 25.0, Description: "25% premium discount"},
+//		},
+//		Priority: 10,
+//		IsActive: true,
+//	}
 type BundleRule struct {
 	ID          string              `json:"id"`
 	Name        string              `json:"name"`
@@ -40,7 +158,29 @@ type BundleRule struct {
 	Description string              `json:"description,omitempty"`
 }
 
-// BundleCondition represents conditions for bundle rules
+// BundleCondition represents a condition that must be evaluated for bundle rules.
+// Conditions define criteria that items, customers, or orders must meet.
+//
+// Condition Types:
+//   - "category": Product category matching
+//   - "brand": Brand matching
+//   - "price_range": Price-based conditions
+//   - "quantity": Quantity-based conditions
+//   - "customer_type": Customer tier/type conditions
+//
+// Operators:
+//   - "=", "!=": Equality/inequality
+//   - "in", "not_in": Set membership
+//   - ">", "<", ">=", "<=": Numeric comparisons
+//
+// Example:
+//
+//	condition := &BundleCondition{
+//		Type: "category",
+//		Operator: "in",
+//		Value: []string{"electronics", "accessories"},
+//		Logic: "AND",
+//	}
 type BundleCondition struct {
 	Type     string      `json:"type"`     // "category", "brand", "price_range", "quantity", "customer_type"
 	Operator string      `json:"operator"` // "=", "!=", "in", "not_in", ">", "<", ">=", "<="
@@ -48,7 +188,23 @@ type BundleCondition struct {
 	Logic    string      `json:"logic,omitempty"` // "AND", "OR"
 }
 
-// BundleAction represents actions to take when bundle rules are met
+// BundleAction represents an action to execute when bundle rule conditions are met.
+// Actions modify bundle behavior, pricing, or composition based on rule evaluation.
+//
+// Action Types:
+//   - "add_item": Add specific items to the bundle
+//   - "remove_item": Remove items from the bundle
+//   - "set_price": Set a fixed bundle price
+//   - "apply_discount": Apply percentage or fixed discount
+//
+// Example:
+//
+//	action := &BundleAction{
+//		Type: "apply_discount",
+//		Target: "bundle",
+//		Value: 20.0,
+//		Description: "20% discount for electronics bundle",
+//	}
 type BundleAction struct {
 	Type        string      `json:"type"`        // "add_item", "remove_item", "set_price", "apply_discount"
 	Target      string      `json:"target"`      // Item ID or category
@@ -56,7 +212,22 @@ type BundleAction struct {
 	Description string      `json:"description,omitempty"`
 }
 
-// BundleConstraints represents constraints for bundle creation
+// BundleConstraints represents business constraints that govern bundle creation.
+// Constraints ensure bundles meet business requirements and inventory limitations.
+//
+// Example:
+//
+//	constraints := &BundleConstraints{
+//		MinItems: 2,
+//		MaxItems: 5,
+//		MinValue: 50.0,
+//		MaxValue: 500.0,
+//		RequiredCategories: []string{"electronics", "accessories"},
+//		ExcludedCategories: []string{"restricted"},
+//		MaxSameCategory: 3,
+//		RequiredBrands: []string{"premium_brand"},
+//		ExcludedBrands: []string{"competitor_brand"},
+//	}
 type BundleConstraints struct {
 	MinItems        int     `json:"min_items"`
 	MaxItems        int     `json:"max_items"`
@@ -69,7 +240,26 @@ type BundleConstraints struct {
 	ExcludedBrands  []string `json:"excluded_brands,omitempty"`
 }
 
-// BundleAnalytics represents analytics data for bundles
+// BundleAnalytics represents comprehensive analytics data for bundle performance.
+// Provides insights into bundle effectiveness, customer behavior, and revenue impact.
+//
+// Example:
+//
+//	analytics := &BundleAnalytics{
+//		BundleID: "bundle_123",
+//		PeriodStart: time.Now().AddDate(0, -1, 0),
+//		PeriodEnd: time.Now(),
+//		ViewCount: 1500,
+//		AddToCartCount: 300,
+//		PurchaseCount: 75,
+//		Revenue: 7500.0,
+//		AverageOrderValue: 100.0,
+//		ConversionRate: 0.25, // 25% conversion from add-to-cart
+//		PopularityScore: 0.85,
+//		ProfitMargin: 0.35,
+//		CustomerSatisfaction: 4.3,
+//		ReturnRate: 0.03,
+//	}
 type BundleAnalytics struct {
 	BundleID        string    `json:"bundle_id"`
 	PeriodStart     time.Time `json:"period_start"`
@@ -86,7 +276,26 @@ type BundleAnalytics struct {
 	ReturnRate      float64   `json:"return_rate,omitempty"`
 }
 
-// BundleRecommendation represents a bundle recommendation
+// BundleRecommendation represents a personalized bundle recommendation.
+// Contains bundle details, pricing information, and recommendation metadata
+// to help customers make informed purchasing decisions.
+//
+// Example:
+//
+//	recommendation := &BundleRecommendation{
+//		BundleID: "tech_bundle_456",
+//		Name: "Complete Tech Setup",
+//		Type: "cross_sell",
+//		Items: []string{"laptop", "mouse", "keyboard", "monitor"},
+//		OriginalPrice: 1200.0,
+//		BundlePrice: 1000.0,
+//		Savings: 200.0,
+//		SavingsPercent: 16.67,
+//		Confidence: 0.85,
+//		Reason: "Frequently bought together by similar customers",
+//		Priority: 8,
+//		ValidUntil: time.Now().AddDate(0, 0, 7),
+//	}
 type BundleRecommendation struct {
 	BundleID      string    `json:"bundle_id"`
 	Name          string    `json:"name"`
@@ -102,8 +311,27 @@ type BundleRecommendation struct {
 	ValidUntil    time.Time `json:"valid_until,omitempty"`
 }
 
-// BundleOptimization represents bundle optimization results
-type BundleOptimization struct {
+// BundleOptimization represents the results of bundle optimization analysis.
+// Contains the original bundle, optimized version, improvements made, and
+// expected performance metrics.
+//
+// Example:
+//
+//	optimization := &BundleOptimization{
+//		OriginalBundle: originalBundle,
+//		OptimizedBundle: optimizedBundle,
+//		Improvements: []BundleImprovement{
+//			{Type: "price_adjustment", Description: "Reduced price by 10%", Impact: 0.15, Confidence: 0.8},
+//			{Type: "item_substitution", Description: "Replaced low-performing item", Impact: 0.12, Confidence: 0.75},
+//		},
+//		Metrics: BundleOptimizationMetrics{
+//			ExpectedRevenueIncrease: 0.18,
+//			ExpectedConversionIncrease: 0.22,
+//			OptimizationScore: 0.85,
+//		},
+//		Recommendations: []string{"Monitor performance weekly", "A/B test the changes"},
+//	}
+type BundleOptimization struct{
 	OriginalBundle Bundle                 `json:"original_bundle"`
 	OptimizedBundle Bundle                `json:"optimized_bundle"`
 	Improvements   []BundleImprovement    `json:"improvements"`
@@ -111,7 +339,23 @@ type BundleOptimization struct {
 	Recommendations []string              `json:"recommendations"`
 }
 
-// BundleImprovement represents an improvement made to a bundle
+// BundleImprovement represents a specific improvement made during bundle optimization.
+// Tracks the type of change, its expected impact, and confidence level.
+//
+// Improvement Types:
+//   - "price_adjustment": Pricing modifications
+//   - "item_addition": Adding new items
+//   - "item_removal": Removing underperforming items
+//   - "substitution": Replacing items with better alternatives
+//
+// Example:
+//
+//	improvement := &BundleImprovement{
+//		Type: "price_adjustment",
+//		Description: "Reduced bundle price by 15% to improve conversion",
+//		Impact: 0.25, // Expected 25% improvement in conversion
+//		Confidence: 0.85, // 85% confidence in the prediction
+//	}
 type BundleImprovement struct {
 	Type        string  `json:"type"`        // "price_adjustment", "item_addition", "item_removal", "substitution"
 	Description string  `json:"description"`
@@ -119,8 +363,19 @@ type BundleImprovement struct {
 	Confidence  float64 `json:"confidence"`  // Confidence in the improvement
 }
 
-// BundleOptimizationMetrics represents metrics for bundle optimization
-type BundleOptimizationMetrics struct {
+// BundleOptimizationMetrics represents quantitative metrics for bundle optimization results.
+// Provides measurable expectations for the impact of optimization changes.
+//
+// Example:
+//
+//	metrics := &BundleOptimizationMetrics{
+//		ExpectedRevenueIncrease: 0.20, // 20% revenue increase
+//		ExpectedConversionIncrease: 0.15, // 15% conversion increase
+//		ProfitMarginChange: -0.05, // 5% margin decrease due to pricing
+//		CustomerSatisfactionChange: 0.10, // 10% satisfaction increase
+//		OptimizationScore: 0.82, // Overall optimization score
+//	}
+type BundleOptimizationMetrics struct{
 	ExpectedRevenueIncrease float64 `json:"expected_revenue_increase"`
 	ExpectedConversionIncrease float64 `json:"expected_conversion_increase"`
 	ProfitMarginChange      float64 `json:"profit_margin_change"`
@@ -128,7 +383,19 @@ type BundleOptimizationMetrics struct {
 	OptimizationScore       float64 `json:"optimization_score"`
 }
 
-// NewBundleManager creates a new bundle manager
+// NewBundleManager creates a new bundle manager instance.
+// Initializes all internal collections and prepares the manager for use.
+//
+// Returns:
+//   - *BundleManager: A new bundle manager ready for use
+//
+// Example:
+//
+//	bm := pricing.NewBundleManager()
+//
+//	// Manager is ready to use
+//	bundles := bm.GetActiveBundles()
+//	fmt.Printf("Active bundles: %d\n", len(bundles))
 func NewBundleManager() *BundleManager {
 	return &BundleManager{
 		bundles:         make([]Bundle, 0),
@@ -138,7 +405,36 @@ func NewBundleManager() *BundleManager {
 	}
 }
 
-// CreateBundle creates a new bundle from items
+// CreateBundle creates a new bundle from a collection of items.
+// Applies pricing rules, bundle rules, and calculates final pricing automatically.
+//
+// Parameters:
+//   - name: Display name for the bundle
+//   - description: Detailed description of the bundle
+//   - bundleType: Type of bundle (fixed, mix-and-match, frequency)
+//   - items: Items to include in the bundle
+//   - pricing: Pricing configuration for the bundle
+//
+// Returns:
+//   - *Bundle: The created bundle with calculated pricing
+//   - error: Error if bundle creation fails
+//
+// Example:
+//
+//	items := []pricing.PricingItem{
+//		{ID: "laptop", Name: "Gaming Laptop", BasePrice: 1200.0, Category: "electronics"},
+//		{ID: "mouse", Name: "Gaming Mouse", BasePrice: 80.0, Category: "accessories"},
+//	}
+//
+//	pricing := pricing.BundlePricing{
+//		Type: "percentage",
+//		Value: 15.0, // 15% discount
+//	}
+//
+//	bundle, err := bm.CreateBundle("Gaming Setup", "Complete gaming bundle", pricing.BundleTypeFixed, items, pricing)
+//	if err != nil {
+//		return nil, err
+//	}
 func (bm *BundleManager) CreateBundle(name, description string, bundleType BundleType, items []PricingItem, pricing BundlePricing) (*Bundle, error) {
 	if len(items) == 0 {
 		return nil, fmt.Errorf("cannot create bundle with no items")
@@ -184,7 +480,29 @@ func (bm *BundleManager) CreateBundle(name, description string, bundleType Bundl
 	return bundle, nil
 }
 
-// CreateBundleFromTemplate creates a bundle from a template
+// CreateBundleFromTemplate creates a bundle from a predefined template.
+// Templates provide pre-configured rules, pricing, and constraints for common bundle types.
+//
+// Parameters:
+//   - templateID: ID of the template to use
+//   - items: Items to include in the bundle
+//   - customizations: Custom overrides for template settings
+//
+// Returns:
+//   - *Bundle: The created bundle based on the template
+//   - error: Error if template not found or bundle creation fails
+//
+// Example:
+//
+//	customizations := map[string]interface{}{
+//		"discount_percentage": 20.0, // Override template discount
+//		"max_items": 5, // Override max items constraint
+//	}
+//
+//	bundle, err := bm.CreateBundleFromTemplate("electronics-combo", items, customizations)
+//	if err != nil {
+//		return nil, err
+//	}
 func (bm *BundleManager) CreateBundleFromTemplate(templateID string, items []PricingItem, customizations map[string]interface{}) (*Bundle, error) {
 	template := bm.getBundleTemplate(templateID)
 	if template == nil {
@@ -212,7 +530,38 @@ func (bm *BundleManager) CreateBundleFromTemplate(templateID string, items []Pri
 	return bundle, nil
 }
 
-// GenerateBundleRecommendations generates bundle recommendations based on items
+// GenerateBundleRecommendations generates intelligent bundle recommendations for given items.
+// Uses customer data, purchase history, and item relationships to suggest optimal bundles.
+//
+// Parameters:
+//   - items: Items to generate recommendations for
+//   - customer: Customer information and preferences
+//   - context: Pricing context and business rules
+//
+// Returns:
+//   - []BundleRecommendation: List of recommended bundles
+//   - error: Error if recommendation generation fails
+//
+// Example:
+//
+//	customer := pricing.Customer{
+//		ID: "customer-123",
+//		Tier: "premium",
+//		Preferences: map[string]interface{}{
+//			"categories": []string{"electronics", "accessories"},
+//			"price_sensitivity": "medium",
+//		},
+//	}
+//
+//	recommendations, err := bm.GenerateBundleRecommendations(items, customer, context)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	for _, rec := range recommendations {
+//		fmt.Printf("Bundle: %s, Confidence: %.2f, Savings: $%.2f\n", 
+//			rec.Name, rec.Confidence, rec.Savings)
+//	}
 func (bm *BundleManager) GenerateBundleRecommendations(items []PricingItem, customer Customer, context PricingContext) ([]BundleRecommendation, error) {
 	recommendations := make([]BundleRecommendation, 0)
 
@@ -244,7 +593,28 @@ func (bm *BundleManager) GenerateBundleRecommendations(items []PricingItem, cust
 	return recommendations, nil
 }
 
-// OptimizeBundle optimizes an existing bundle
+// OptimizeBundle optimizes an existing bundle to improve performance metrics.
+// Analyzes current performance and suggests improvements based on analytics data.
+//
+// Parameters:
+//   - bundleID: ID of the bundle to optimize
+//
+// Returns:
+//   - *BundleOptimization: Optimization results with suggested improvements
+//   - error: Error if bundle not found or optimization fails
+//
+// Example:
+//
+//	optimization, err := bm.OptimizeBundle("bundle-123")
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	fmt.Printf("Optimization Score: %.2f\n", optimization.Metrics.OptimizationScore)
+//	for _, improvement := range optimization.Improvements {
+//		fmt.Printf("Improvement: %s (Impact: %.1f%%)\n", 
+//			improvement.Description, improvement.Impact*100)
+//	}
 func (bm *BundleManager) OptimizeBundle(bundleID string) (*BundleOptimization, error) {
 	bundle := bm.getBundle(bundleID)
 	if bundle == nil {
@@ -293,7 +663,32 @@ func (bm *BundleManager) OptimizeBundle(bundleID string) (*BundleOptimization, e
 	return optimization, nil
 }
 
-// AnalyzeBundlePerformance analyzes bundle performance
+// AnalyzeBundlePerformance analyzes the performance of a bundle over a specified time period.
+// Provides comprehensive metrics including sales, conversion rates, and customer feedback.
+//
+// Parameters:
+//   - bundleID: ID of the bundle to analyze
+//   - periodStart: Start date for the analysis period
+//   - periodEnd: End date for the analysis period
+//
+// Returns:
+//   - *BundleAnalytics: Detailed performance analytics
+//   - error: Error if bundle not found or analysis fails
+//
+// Example:
+//
+//	startDate := time.Now().AddDate(0, -1, 0) // 1 month ago
+//	endDate := time.Now()
+//
+//	analytics, err := bm.AnalyzeBundlePerformance("bundle-123", startDate, endDate)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	fmt.Printf("Bundle Performance (30 days):\n")
+//	fmt.Printf("Sales: %d, Revenue: $%.2f\n", analytics.PurchaseCount, analytics.Revenue)
+//	fmt.Printf("Conversion Rate: %.2f%%\n", analytics.ConversionRate*100)
+//	fmt.Printf("Customer Satisfaction: %.1f/5\n", analytics.CustomerSatisfaction)
 func (bm *BundleManager) AnalyzeBundlePerformance(bundleID string, periodStart, periodEnd time.Time) (*BundleAnalytics, error) {
 	bundle := bm.getBundle(bundleID)
 	if bundle == nil {
@@ -327,7 +722,32 @@ func (bm *BundleManager) AnalyzeBundlePerformance(bundleID string, periodStart, 
 	return analytics, nil
 }
 
-// CreateMixAndMatchBundle creates a mix-and-match bundle
+// CreateMixAndMatchBundle creates a flexible mix-and-match bundle.
+// Allows customers to choose items from specified categories with quantity constraints.
+//
+// Parameters:
+//   - name: Display name for the bundle
+//   - categories: Product categories customers can choose from
+//   - minItems: Minimum number of items required
+//   - maxItems: Maximum number of items allowed
+//   - pricing: Pricing configuration for the bundle
+//
+// Returns:
+//   - *Bundle: The created mix-and-match bundle
+//   - error: Error if bundle creation fails
+//
+// Example:
+//
+//	categories := []string{"shirts", "pants", "accessories"}
+//	pricing := pricing.BundlePricing{
+//		Type: "tiered",
+//		Tiers: []pricing.PricingTier{
+//			{MinQuantity: 3, Discount: 0.15}, // 15% off for 3+ items
+//			{MinQuantity: 5, Discount: 0.25}, // 25% off for 5+ items
+//		},
+//	}
+//
+//	bundle, err := bm.CreateMixAndMatchBundle("Fashion Mix", categories, 2, 6, pricing)
 func (bm *BundleManager) CreateMixAndMatchBundle(name string, categories []string, minItems, maxItems int, pricing BundlePricing) (*Bundle, error) {
 	bundle := &Bundle{
 		ID:          fmt.Sprintf("mixmatch_%d", time.Now().Unix()),
@@ -347,7 +767,30 @@ func (bm *BundleManager) CreateMixAndMatchBundle(name string, categories []strin
 	return bundle, nil
 }
 
-// CreateFrequencyBundle creates a frequency-based bundle
+// CreateFrequencyBundle creates a subscription-style frequency bundle.
+// Designed for recurring purchases with automatic delivery and pricing benefits.
+//
+// Parameters:
+//   - name: Display name for the bundle
+//   - baseItem: Primary item for the recurring bundle
+//   - frequency: Delivery frequency in days
+//   - discount: Percentage discount for subscription
+//
+// Returns:
+//   - *Bundle: The created frequency bundle
+//   - error: Error if bundle creation fails
+//
+// Example:
+//
+//	baseItem := pricing.PricingItem{
+//		ID: "coffee-beans",
+//		Name: "Premium Coffee Beans",
+//		BasePrice: 25.0,
+//		Category: "beverages",
+//	}
+//
+//	// Monthly delivery with 20% discount
+//	bundle, err := bm.CreateFrequencyBundle("Coffee Subscription", baseItem, 30, 20.0)
 func (bm *BundleManager) CreateFrequencyBundle(name string, baseItem PricingItem, frequency int, discount float64) (*Bundle, error) {
 	bundle := &Bundle{
 		ID:          fmt.Sprintf("frequency_%d", time.Now().Unix()),
@@ -770,22 +1213,102 @@ func (bm *BundleManager) calculateOptimizationMetrics(original, optimized *Bundl
 
 // Public methods for bundle management
 
-// AddBundleTemplate adds a bundle template
+// AddBundleTemplate adds a new bundle template to the manager.
+// Templates can be reused to create multiple bundles with consistent configuration.
+//
+// Parameters:
+//   - template: The bundle template to add
+//
+// Example:
+//
+//	template := pricing.BundleTemplate{
+//		ID: "electronics-combo",
+//		Name: "Electronics Combo",
+//		Description: "Popular electronics bundle template",
+//		Type: pricing.BundleTypeFixed,
+//		DefaultPricing: pricing.BundlePricing{
+//			Type: "percentage",
+//			Value: 15.0,
+//		},
+//		Constraints: pricing.BundleConstraints{
+//			MinItems: 2,
+//			MaxItems: 5,
+//			AllowedCategories: []string{"electronics", "accessories"},
+//		},
+//	}
+//
+//	bm.AddBundleTemplate(template)
 func (bm *BundleManager) AddBundleTemplate(template BundleTemplate) {
 	bm.bundleTemplates = append(bm.bundleTemplates, template)
 }
 
-// AddBundleRule adds a bundle rule
+// AddBundleRule adds a new bundle rule to the manager.
+// Rules are applied automatically during bundle creation and pricing calculation.
+//
+// Parameters:
+//   - rule: The bundle rule to add
+//
+// Example:
+//
+//	rule := pricing.BundleRule{
+//		ID: "high-value-discount",
+//		Name: "High Value Bundle Discount",
+//		Conditions: []pricing.BundleCondition{
+//			{
+//				Type: "total_value",
+//				Operator: "greater_than",
+//				Value: 500.0,
+//			},
+//		},
+//		Actions: []pricing.BundleAction{
+//			{
+//				Type: "percentage_discount",
+//				Value: 25.0, // 25% discount for high-value bundles
+//			},
+//		},
+//		Priority: 10,
+//		Active: true,
+//	}
+//
+//	bm.AddBundleRule(rule)
 func (bm *BundleManager) AddBundleRule(rule BundleRule) {
 	bm.bundleRules = append(bm.bundleRules, rule)
 }
 
-// GetBundles returns all bundles
+// GetBundles returns all bundles managed by this bundle manager.
+// Includes both active and inactive bundles.
+//
+// Returns:
+//   - []Bundle: All bundles in the manager
+//
+// Example:
+//
+//	allBundles := bm.GetBundles()
+//	fmt.Printf("Total bundles: %d\n", len(allBundles))
+//
+//	for _, bundle := range allBundles {
+//		fmt.Printf("Bundle: %s, Active: %t, Price: $%.2f\n", 
+//			bundle.Name, bundle.Active, bundle.FinalPrice)
+//	}
 func (bm *BundleManager) GetBundles() []Bundle {
 	return bm.bundles
 }
 
-// GetActiveBundles returns only active bundles
+// GetActiveBundles returns only the currently active bundles.
+// Filters out inactive, expired, or disabled bundles.
+//
+// Returns:
+//   - []Bundle: Active bundles available for purchase
+//
+// Example:
+//
+//	activeBundles := bm.GetActiveBundles()
+//	fmt.Printf("Active bundles available: %d\n", len(activeBundles))
+//
+//	for _, bundle := range activeBundles {
+//		fmt.Printf("Available: %s - $%.2f (Save $%.2f)\n", 
+//			bundle.Name, bundle.FinalPrice, bundle.TotalSavings)
+//	}
 func (bm *BundleManager) GetActiveBundles() []Bundle {
 	activeBundles := make([]Bundle, 0)
 	for _, bundle := range bm.bundles {
@@ -796,7 +1319,26 @@ func (bm *BundleManager) GetActiveBundles() []Bundle {
 	return activeBundles
 }
 
-// UpdateBundleAnalytics updates analytics for a bundle
+// UpdateBundleAnalytics updates the analytics data for a specific bundle.
+// Used to track performance metrics and inform optimization decisions.
+//
+// Parameters:
+//   - bundleID: ID of the bundle to update
+//   - analytics: New analytics data to store
+//
+// Example:
+//
+//	analytics := pricing.BundleAnalytics{
+//		PurchaseCount: 150,
+//		Revenue: 12500.0,
+//		ConversionRate: 0.08, // 8% conversion rate
+//		AverageOrderValue: 83.33,
+//		CustomerSatisfaction: 4.2,
+//		ReturnRate: 0.02, // 2% return rate
+//		ProfitMargin: 0.35, // 35% profit margin
+//	}
+//
+//	bm.UpdateBundleAnalytics("bundle-123", analytics)
 func (bm *BundleManager) UpdateBundleAnalytics(bundleID string, analytics BundleAnalytics) {
 	bm.analytics[bundleID] = analytics
 }
