@@ -923,24 +923,25 @@ func TestLinearRegression(t *testing.T) {
 // Test for ScaleToRange function (currently 0% coverage)
 func TestScaleToRange(t *testing.T) {
 	tests := []struct {
-		name     string
-		value    float64
-		min, max float64
-		expected float64
+		name                    string
+		value                   float64
+		oldMin, oldMax          float64
+		newMin, newMax          float64
+		expected                float64
 	}{
-		{"Value within range", 5.0, 0.0, 10.0, 5.0},
-		{"Value below range", -5.0, 0.0, 10.0, 0.0},
-		{"Value above range", 15.0, 0.0, 10.0, 10.0},
-		{"Value at min", 0.0, 0.0, 10.0, 0.0},
-		{"Value at max", 10.0, 0.0, 10.0, 10.0},
-		{"Negative range", -5.0, -10.0, -1.0, -5.0},
+		{"Scale 0-10 to 0-100", 5.0, 0.0, 10.0, 0.0, 100.0, 50.0},
+		{"Scale 0-10 to 20-30", 2.0, 0.0, 10.0, 20.0, 30.0, 22.0},
+		{"Scale 1-5 to 0-1", 3.0, 1.0, 5.0, 0.0, 1.0, 0.5},
+		{"Scale at old min", 0.0, 0.0, 10.0, 5.0, 15.0, 5.0},
+		{"Scale at old max", 10.0, 0.0, 10.0, 5.0, 15.0, 15.0},
+		{"Negative ranges", -5.0, -10.0, 0.0, 0.0, 100.0, 50.0},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ScaleToRange(tt.value, tt.min, tt.max)
-			if result != tt.expected {
-				t.Errorf("ScaleToRange(%f, %f, %f) = %f; want %f", tt.value, tt.min, tt.max, result, tt.expected)
+			result := ScaleToRange(tt.value, tt.oldMin, tt.oldMax, tt.newMin, tt.newMax)
+			if math.Abs(result-tt.expected) > 0.01 {
+				t.Errorf("ScaleToRange(%f, %f, %f, %f, %f) = %f; want %f", tt.value, tt.oldMin, tt.oldMax, tt.newMin, tt.newMax, result, tt.expected)
 			}
 		})
 	}
@@ -950,20 +951,20 @@ func TestScaleToRange(t *testing.T) {
 func TestLogistic(t *testing.T) {
 	tests := []struct {
 		name     string
-		x, k, x0, l float64
+		x, l, k, x0 float64
 		expected float64
 	}{
-		{"Basic logistic", 5.0, 1.0, 0.0, 10.0, 9.933},
-		{"At inflection point", 0.0, 1.0, 0.0, 10.0, 5.0},
-		{"Negative x", -5.0, 1.0, 0.0, 10.0, 0.067},
-		{"Different carrying capacity", 2.0, 0.5, 1.0, 100.0, 62.246},
+		{"Basic logistic", 5.0, 10.0, 1.0, 0.0, 9.933},
+		{"At inflection point", 0.0, 10.0, 1.0, 0.0, 5.0},
+		{"Negative x", -5.0, 10.0, 1.0, 0.0, 0.067},
+		{"Different carrying capacity", 2.0, 100.0, 0.5, 1.0, 62.246},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := Logistic(tt.x, tt.k, tt.x0, tt.l)
+			result := Logistic(tt.x, tt.l, tt.k, tt.x0)
 			if math.Abs(result-tt.expected) > 0.01 {
-				t.Errorf("Logistic(%f, %f, %f, %f) = %f; want %f", tt.x, tt.k, tt.x0, tt.l, result, tt.expected)
+				t.Errorf("Logistic(%f, %f, %f, %f) = %f; want %f", tt.x, tt.l, tt.k, tt.x0, result, tt.expected)
 			}
 		})
 	}

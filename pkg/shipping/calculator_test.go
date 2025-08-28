@@ -163,8 +163,8 @@ func TestCalculateDimensionalWeight(t *testing.T) {
 	}
 
 	dimWeight := calculateDimensionalWeight(items)
-	if dimWeight <= 0 {
-		t.Errorf("Expected positive dimensional weight, got %f", dimWeight)
+	if dimWeight.Value <= 0 {
+		t.Errorf("Expected positive dimensional weight, got %f", dimWeight.Value)
 	}
 }
 

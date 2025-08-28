@@ -1,3 +1,45 @@
+// Package tax provides comprehensive tax calculation functionality for e-commerce applications.
+//
+// This package supports various tax calculation methods including percentage-based,
+// fixed amount, tiered, progressive, and compound tax calculations. It handles
+// multiple jurisdictions, tax exemptions, customer-specific rules, and complex
+// tax scenarios commonly found in e-commerce platforms.
+//
+// Key Features:
+//   - Multiple tax calculation methods (percentage, fixed, tiered, progressive, compound)
+//   - Geographic-based tax rules (country, state, city, postal code)
+//   - Customer and item-level tax exemptions
+//   - Tax-inclusive and tax-exclusive pricing
+//   - Compound tax calculations
+//   - Tax overrides and manual adjustments
+//   - Comprehensive validation and error handling
+//   - Detailed tax breakdowns and reporting
+//
+// Basic Usage:
+//
+//	config := TaxConfiguration{
+//		DefaultCurrency:     "USD",
+//		RoundingMode:        "round",
+//		RoundingPrecision:   2,
+//		TaxInclusivePricing: false,
+//	}
+//
+//	calc := NewTaxCalculator(config)
+//	input := TaxCalculationInput{
+//		Items: []TaxableItem{{
+//			ID:          "item1",
+//			Name:        "Product A",
+//			TotalAmount: 100.00,
+//			Quantity:    1,
+//		}},
+//		ShippingAddress: Address{
+//			Country: "US",
+//			State:   "CA",
+//		},
+//	}
+//
+//	result := calc.CalculateTax(input)
+//	fmt.Printf("Total Tax: $%.2f\n", result.TotalTax)
 package tax
 
 import (
@@ -9,14 +51,44 @@ import (
 	"time"
 )
 
-// TaxCalculator handles tax calculations
+// TaxCalculator handles comprehensive tax calculations for e-commerce transactions.
+// It supports multiple tax calculation methods, geographic rules, exemptions,
+// and complex tax scenarios.
+//
+// The calculator maintains a configuration that defines default behavior,
+// a set of tax rules that determine applicable taxes, and validation rules
+// for ensuring calculation accuracy.
 type TaxCalculator struct {
+	// Configuration defines the default tax calculation behavior
 	Configuration TaxConfiguration
-	Rules         []TaxRule
+	// Rules contains all tax rules that may apply to calculations
+	Rules []TaxRule
+	// ValidationRules contains rules for validating tax calculations
 	ValidationRules []TaxValidationRule
 }
 
-// NewTaxCalculator creates a new tax calculator
+// NewTaxCalculator creates a new tax calculator with the specified configuration.
+// The calculator is initialized with the provided configuration and any default
+// rules specified in the configuration.
+//
+// Parameters:
+//   - config: Tax configuration defining calculation behavior
+//
+// Returns:
+//   - *TaxCalculator: A new tax calculator instance
+//
+// Example:
+//
+//	config := TaxConfiguration{
+//		DefaultCurrency:     "USD",
+//		RoundingMode:        "round",
+//		RoundingPrecision:   2,
+//		TaxInclusivePricing: false,
+//		CompoundTaxes:       false,
+//		TaxOnShipping:       true,
+//		TaxOnDiscounts:      true,
+//	}
+//	calc := NewTaxCalculator(config)
 func NewTaxCalculator(config TaxConfiguration) *TaxCalculator {
 	return &TaxCalculator{
 		Configuration: config,
@@ -25,7 +97,39 @@ func NewTaxCalculator(config TaxConfiguration) *TaxCalculator {
 	}
 }
 
-// Calculate calculates taxes for given input
+// Calculate is a convenience function that calculates taxes for the given input
+// using default tax configuration. This function creates a temporary tax calculator
+// with standard settings and performs the calculation.
+//
+// Default Configuration:
+//   - Currency: USD
+//   - Rounding: Round to 2 decimal places
+//   - Tax-exclusive pricing
+//   - No compound taxes
+//   - Tax on shipping and discounts enabled
+//
+// Parameters:
+//   - input: Tax calculation input containing items, addresses, and rules
+//
+// Returns:
+//   - TaxCalculationResult: Complete tax calculation result with breakdowns
+//
+// Example:
+//
+//	input := TaxCalculationInput{
+//		Items: []TaxableItem{{
+//			ID:          "item1",
+//			TotalAmount: 100.00,
+//			Quantity:    1,
+//		}},
+//		ShippingAddress: Address{Country: "US", State: "CA"},
+//		TaxRules: []TaxRule{{
+//			ID:   "sales_tax",
+//			Rate: 8.25,
+//			Type: TaxTypeSales,
+//		}},
+//	}
+//	result := Calculate(input)
 func Calculate(input TaxCalculationInput) TaxCalculationResult {
 	config := TaxConfiguration{
 		DefaultCurrency:     "USD",
@@ -45,7 +149,40 @@ func Calculate(input TaxCalculationInput) TaxCalculationResult {
 	return calc.CalculateTax(input)
 }
 
-// CalculateTax calculates taxes for the given input
+// CalculateTax performs comprehensive tax calculation for the given input.
+// This is the main calculation method that processes all items, applies
+// applicable tax rules, handles exemptions, and generates detailed breakdowns.
+//
+// The calculation process includes:
+//   1. Input validation
+//   2. Subtotal calculation
+//   3. Discount and shipping adjustments
+//   4. Rule evaluation and application
+//   5. Tax calculation per item
+//   6. Override application
+//   7. Amount rounding
+//   8. Result validation
+//
+// Parameters:
+//   - input: Complete tax calculation input with items, addresses, customer info
+//
+// Returns:
+//   - TaxCalculationResult: Detailed calculation result with breakdowns and totals
+//
+// Example:
+//
+//	calc := NewTaxCalculator(config)
+//	input := TaxCalculationInput{
+//		Items: []TaxableItem{{
+//			ID:          "item1",
+//			TotalAmount: 100.00,
+//			Quantity:    1,
+//			Category:    "electronics",
+//		}},
+//		ShippingAddress: Address{Country: "US", State: "CA"},
+//		Customer: Customer{Type: "individual"},
+//	}
+//	result := calc.CalculateTax(input)
 func (tc *TaxCalculator) CalculateTax(input TaxCalculationInput) TaxCalculationResult {
 	result := TaxCalculationResult{
 		AppliedTaxes:       []AppliedTax{},
@@ -128,7 +265,14 @@ func (tc *TaxCalculator) CalculateTax(input TaxCalculationInput) TaxCalculationR
 	return result
 }
 
-// calculateSubtotal calculates the subtotal of all items
+// calculateSubtotal calculates the subtotal amount from all taxable items.
+// This method sums the total amount of all items before any tax calculations.
+//
+// Parameters:
+//   - items: Slice of taxable items to calculate subtotal for
+//
+// Returns:
+//   - float64: The subtotal amount of all items
 func (tc *TaxCalculator) calculateSubtotal(items []TaxableItem) float64 {
 	subtotal := 0.0
 	for _, item := range items {
@@ -137,7 +281,17 @@ func (tc *TaxCalculator) calculateSubtotal(items []TaxableItem) float64 {
 	return subtotal
 }
 
-// getApplicableRules returns tax rules applicable to the input
+// getApplicableRules filters and returns tax rules that apply to the given input.
+// This method evaluates each rule against the input criteria including:
+//   - Rule active status and validity period
+//   - Geographic applicability (country, state, city, postal code)
+//   - Rule conditions (amount, quantity, weight, category, customer type)
+//
+// Parameters:
+//   - input: Tax calculation input to evaluate rules against
+//
+// Returns:
+//   - []TaxRule: Slice of applicable tax rules sorted by priority
 func (tc *TaxCalculator) getApplicableRules(input TaxCalculationInput) []TaxRule {
 	applicableRules := []TaxRule{}
 	now := time.Now()
@@ -164,7 +318,17 @@ func (tc *TaxCalculator) getApplicableRules(input TaxCalculationInput) []TaxRule
 	return applicableRules
 }
 
-// isGeographicallyApplicable checks if a rule applies to the given addresses
+// isGeographicallyApplicable determines if a tax rule applies to the given addresses.
+// The method uses shipping address as primary and falls back to billing address.
+// It checks rule applicability against countries, states, cities, and postal codes.
+//
+// Parameters:
+//   - rule: Tax rule to evaluate for geographic applicability
+//   - billingAddr: Customer's billing address
+//   - shippingAddr: Customer's shipping address (preferred for tax calculation)
+//
+// Returns:
+//   - bool: True if the rule applies to the given geographic location
 func (tc *TaxCalculator) isGeographicallyApplicable(rule TaxRule, billingAddr, shippingAddr Address) bool {
 	// Use shipping address for tax calculation (common practice)
 	addr := shippingAddr
@@ -231,7 +395,16 @@ func (tc *TaxCalculator) isGeographicallyApplicable(rule TaxRule, billingAddr, s
 	return true
 }
 
-// evaluateConditions evaluates rule conditions
+// evaluateConditions evaluates all conditions for a tax rule.
+// This method processes multiple conditions and applies logical operators
+// to determine if all conditions are met (currently uses AND logic).
+//
+// Parameters:
+//   - conditions: Slice of tax conditions to evaluate
+//   - input: Tax calculation input to evaluate conditions against
+//
+// Returns:
+//   - bool: True if all conditions are satisfied
 func (tc *TaxCalculator) evaluateConditions(conditions []TaxCondition, input TaxCalculationInput) bool {
 	if len(conditions) == 0 {
 		return true
@@ -253,7 +426,20 @@ func (tc *TaxCalculator) evaluateConditions(conditions []TaxCondition, input Tax
 	return true
 }
 
-// evaluateCondition evaluates a single condition
+// evaluateCondition evaluates a single tax condition against the input.
+// Supported condition types:
+//   - "amount": Total transaction amount
+//   - "quantity": Total item quantity
+//   - "weight": Total item weight
+//   - "category": Item category matching
+//   - "customer_type": Customer type matching
+//
+// Parameters:
+//   - condition: Single tax condition to evaluate
+//   - input: Tax calculation input containing data to evaluate
+//
+// Returns:
+//   - bool: True if the condition is satisfied
 func (tc *TaxCalculator) evaluateCondition(condition TaxCondition, input TaxCalculationInput) bool {
 	switch condition.Type {
 	case "amount":
@@ -285,7 +471,19 @@ func (tc *TaxCalculator) evaluateCondition(condition TaxCondition, input TaxCalc
 	}
 }
 
-// compareValues compares two values based on operator
+// compareValues compares two values using the specified operator.
+// Supported operators:
+//   - ">", "<", ">=", "<=": Numeric comparisons
+//   - "=", "!=": Equality comparisons
+//   - "in", "not_in": Array membership checks
+//
+// Parameters:
+//   - actual: The actual value to compare
+//   - operator: Comparison operator to use
+//   - expected: The expected value or values to compare against
+//
+// Returns:
+//   - bool: True if the comparison is satisfied
 func (tc *TaxCalculator) compareValues(actual interface{}, operator string, expected interface{}) bool {
 	switch operator {
 	case ">":
@@ -334,7 +532,15 @@ func (tc *TaxCalculator) compareValues(actual interface{}, operator string, expe
 	}
 }
 
-// toFloat64 converts interface{} to float64
+// toFloat64 converts various numeric types to float64.
+// Supports conversion from float32, float64, int, int64, and string types.
+//
+// Parameters:
+//   - value: Value to convert to float64
+//
+// Returns:
+//   - float64: Converted numeric value
+//   - error: Error if conversion fails
 func (tc *TaxCalculator) toFloat64(value interface{}) (float64, error) {
 	switch v := value.(type) {
 	case float64:
@@ -352,7 +558,23 @@ func (tc *TaxCalculator) toFloat64(value interface{}) (float64, error) {
 	}
 }
 
-// calculateItemTax calculates tax for a single item
+// calculateItemTax calculates tax for a single taxable item.
+// This method processes exemptions, applies applicable tax rules,
+// and generates a detailed breakdown of taxes for the item.
+//
+// The calculation process:
+//   1. Check item-level exemptions
+//   2. Check customer-level exemptions
+//   3. Apply applicable tax rules
+//   4. Handle compound tax calculations if configured
+//
+// Parameters:
+//   - item: The taxable item to calculate tax for
+//   - rules: Applicable tax rules for this calculation
+//   - input: Complete tax calculation input for context
+//
+// Returns:
+//   - TaxBreakdown: Detailed breakdown of taxes applied to this item
 func (tc *TaxCalculator) calculateItemTax(item TaxableItem, rules []TaxRule, input TaxCalculationInput) TaxBreakdown {
 	breakdown := TaxBreakdown{
 		ItemID:        item.ID,
@@ -399,7 +621,15 @@ func (tc *TaxCalculator) calculateItemTax(item TaxableItem, rules []TaxRule, inp
 	return breakdown
 }
 
-// isCustomerExempt checks if customer is exempt from tax
+// isCustomerExempt determines if a customer is exempt from tax for a specific item.
+// This method checks all customer exemptions to see if any apply to the given item.
+//
+// Parameters:
+//   - customer: Customer information including exemptions
+//   - item: Taxable item to check exemptions for
+//
+// Returns:
+//   - bool: True if the customer is exempt from tax for this item
 func (tc *TaxCalculator) isCustomerExempt(customer Customer, item TaxableItem) bool {
 	for _, exemption := range customer.Exemptions {
 		if tc.isExemptionApplicable(exemption, item) {
@@ -409,7 +639,19 @@ func (tc *TaxCalculator) isCustomerExempt(customer Customer, item TaxableItem) b
 	return false
 }
 
-// isExemptionApplicable checks if an exemption applies to an item
+// isExemptionApplicable determines if a specific tax exemption applies to an item.
+// This method checks exemption validity period and conditions to determine applicability.
+//
+// Exemption types:
+//   - "item": Exemption based on item category or characteristics
+//   - "customer": Customer-level exemption applying to all items
+//
+// Parameters:
+//   - exemption: Tax exemption to evaluate
+//   - item: Taxable item to check exemption against
+//
+// Returns:
+//   - bool: True if the exemption applies to the item
 func (tc *TaxCalculator) isExemptionApplicable(exemption TaxExemption, item TaxableItem) bool {
 	now := time.Now()
 	if now.Before(exemption.ValidFrom) || now.After(exemption.ValidUntil) {
@@ -432,7 +674,18 @@ func (tc *TaxCalculator) isExemptionApplicable(exemption TaxExemption, item Taxa
 	return false
 }
 
-// isRuleApplicableToItem checks if a tax rule applies to a specific item
+// isRuleApplicableToItem determines if a tax rule applies to a specific item.
+// This method checks rule criteria including:
+//   - Applicable categories (item must match)
+//   - Exempt categories (item must not match)
+//   - Amount thresholds (min/max amounts)
+//
+// Parameters:
+//   - rule: Tax rule to evaluate for applicability
+//   - item: Taxable item to check rule against
+//
+// Returns:
+//   - bool: True if the rule applies to the item
 func (tc *TaxCalculator) isRuleApplicableToItem(rule TaxRule, item TaxableItem) bool {
 	// Check applicable categories
 	if len(rule.ApplicableCategories) > 0 {
@@ -466,7 +719,21 @@ func (tc *TaxCalculator) isRuleApplicableToItem(rule TaxRule, item TaxableItem) 
 	return true
 }
 
-// calculateTaxForRule calculates tax amount for a specific rule
+// calculateTaxForRule calculates the tax amount for a specific tax rule.
+// This method supports multiple calculation methods:
+//   - Percentage: Tax as percentage of taxable amount
+//   - Fixed: Fixed tax amount per item quantity
+//   - Tiered: Tax rate based on amount tiers
+//   - Progressive: Progressive tax rates across tiers
+//   - Compound: Tax calculated on amount including previous taxes
+//
+// Parameters:
+//   - rule: Tax rule defining calculation method and rates
+//   - taxableAmount: Amount subject to tax calculation
+//   - item: Taxable item for quantity-based calculations
+//
+// Returns:
+//   - AppliedTax: Complete applied tax information including amount
 func (tc *TaxCalculator) calculateTaxForRule(rule TaxRule, taxableAmount float64, item TaxableItem) AppliedTax {
 	appliedTax := AppliedTax{
 		RuleID:        rule.ID,
@@ -499,7 +766,16 @@ func (tc *TaxCalculator) calculateTaxForRule(rule TaxRule, taxableAmount float64
 	return appliedTax
 }
 
-// calculateTieredTax calculates tax using tiered rates
+// calculateTieredTax calculates tax using tiered rate structure.
+// In tiered taxation, the entire amount is taxed at the rate of the tier
+// it falls into, unlike progressive taxation where each tier is taxed separately.
+//
+// Parameters:
+//   - thresholds: Tax thresholds defining tiers and rates
+//   - amount: Amount to calculate tax for
+//
+// Returns:
+//   - float64: Calculated tax amount using tiered rates
 func (tc *TaxCalculator) calculateTieredTax(thresholds []TaxThreshold, amount float64) float64 {
 	if len(thresholds) == 0 {
 		return 0
@@ -523,7 +799,16 @@ func (tc *TaxCalculator) calculateTieredTax(thresholds []TaxThreshold, amount fl
 	return 0
 }
 
-// calculateProgressiveTax calculates tax using progressive rates
+// calculateProgressiveTax calculates tax using progressive rate structure.
+// In progressive taxation, each tier is taxed at its own rate, and the
+// total tax is the sum of taxes from all applicable tiers.
+//
+// Parameters:
+//   - thresholds: Tax thresholds defining progressive tiers and rates
+//   - amount: Amount to calculate progressive tax for
+//
+// Returns:
+//   - float64: Calculated tax amount using progressive rates
 func (tc *TaxCalculator) calculateProgressiveTax(thresholds []TaxThreshold, amount float64) float64 {
 	if len(thresholds) == 0 {
 		return 0
@@ -563,7 +848,13 @@ func (tc *TaxCalculator) calculateProgressiveTax(thresholds []TaxThreshold, amou
 	return totalTax
 }
 
-// aggregateAppliedTax aggregates applied tax into result totals
+// aggregateAppliedTax aggregates an applied tax into the calculation result totals.
+// This method updates jurisdiction totals, tax type totals, and the applied taxes list.
+// It handles duplicate tax rules by combining their amounts.
+//
+// Parameters:
+//   - result: Tax calculation result to update with aggregated totals
+//   - appliedTax: Applied tax to aggregate into the result
 func (tc *TaxCalculator) aggregateAppliedTax(result *TaxCalculationResult, appliedTax AppliedTax) {
 	// Add to jurisdiction totals
 	result.JurisdictionTotals[appliedTax.Jurisdiction] += appliedTax.TaxAmount
@@ -587,7 +878,15 @@ func (tc *TaxCalculator) aggregateAppliedTax(result *TaxCalculationResult, appli
 	}
 }
 
-// applyTaxOverrides applies manual tax overrides
+// applyTaxOverrides applies manual tax overrides to the calculation result.
+// This method supports three types of overrides:
+//   - "rate": Override the tax rate for a specific tax type
+//   - "amount": Override the tax amount for a specific tax type
+//   - "exempt": Exempt from a specific tax type
+//
+// Parameters:
+//   - result: Tax calculation result to apply overrides to
+//   - overrides: Slice of tax overrides to apply
 func (tc *TaxCalculator) applyTaxOverrides(result *TaxCalculationResult, overrides []TaxOverride) {
 	for _, override := range overrides {
 		switch override.Type {
@@ -640,7 +939,17 @@ func (tc *TaxCalculator) applyTaxOverrides(result *TaxCalculationResult, overrid
 	}
 }
 
-// roundAmounts rounds amounts based on configuration
+// roundAmounts rounds all monetary amounts in the result based on configuration.
+// Supported rounding modes:
+//   - "round": Standard rounding to nearest value
+//   - "floor": Always round down
+//   - "ceil": Always round up
+//
+// The method rounds totals, applied taxes, and tax breakdowns according
+// to the configured precision (typically 2 decimal places for currency).
+//
+// Parameters:
+//   - result: Tax calculation result to round amounts in
 func (tc *TaxCalculator) roundAmounts(result *TaxCalculationResult) {
 	precision := tc.Configuration.RoundingPrecision
 	multiplier := math.Pow(10, float64(precision))
@@ -685,7 +994,18 @@ func (tc *TaxCalculator) roundAmounts(result *TaxCalculationResult) {
 	}
 }
 
-// validateInput validates the tax calculation input
+// validateInput validates the tax calculation input for completeness and correctness.
+// This method checks for:
+//   - Presence of items to calculate tax for
+//   - Valid item data (ID, amount, quantity)
+//   - Valid address information
+//   - Required transaction date
+//
+// Parameters:
+//   - input: Tax calculation input to validate
+//
+// Returns:
+//   - []string: Slice of validation error messages (empty if valid)
 func (tc *TaxCalculator) validateInput(input TaxCalculationInput) []string {
 	errors := []string{}
 
@@ -716,7 +1036,17 @@ func (tc *TaxCalculator) validateInput(input TaxCalculationInput) []string {
 	return errors
 }
 
-// validateResult validates the tax calculation result
+// validateResult validates the tax calculation result for reasonableness.
+// This method checks for:
+//   - Unusually high tax rates (>50%)
+//   - Negative tax amounts
+//   - Inconsistent total calculations
+//
+// Parameters:
+//   - result: Tax calculation result to validate
+//
+// Returns:
+//   - []string: Slice of validation warning messages
 func (tc *TaxCalculator) validateResult(result TaxCalculationResult) []string {
 	warnings := []string{}
 
@@ -739,7 +1069,20 @@ func (tc *TaxCalculator) validateResult(result TaxCalculationResult) []string {
 	return warnings
 }
 
-// CalculateTaxInclusive calculates tax-inclusive pricing
+// CalculateTaxInclusive calculates tax for tax-inclusive pricing scenarios.
+// In tax-inclusive pricing, the item prices already include tax, and this method
+// extracts the tax component from the total price to show the breakdown.
+//
+// The method:
+//   1. Performs normal tax calculation
+//   2. If tax-inclusive pricing is enabled, extracts tax from item amounts
+//   3. Recalculates totals with tax-exclusive amounts
+//
+// Parameters:
+//   - input: Tax calculation input with tax-inclusive item prices
+//
+// Returns:
+//   - TaxCalculationResult: Result showing tax-exclusive amounts and extracted tax
 func (tc *TaxCalculator) CalculateTaxInclusive(input TaxCalculationInput) TaxCalculationResult {
 	// First calculate tax normally
 	result := tc.CalculateTax(input)
@@ -777,7 +1120,23 @@ func (tc *TaxCalculator) CalculateTaxInclusive(input TaxCalculationInput) TaxCal
 	return result
 }
 
-// GetTaxSummary returns a summary of tax calculations
+// GetTaxSummary generates a comprehensive summary from multiple tax calculation results.
+// This function aggregates data across multiple transactions to provide insights into:
+//   - Total transaction counts and amounts
+//   - Average tax rates
+//   - Tax totals by jurisdiction and tax type
+//
+// Parameters:
+//   - results: Slice of tax calculation results to summarize
+//
+// Returns:
+//   - map[string]interface{}: Summary containing aggregated tax statistics
+//
+// Example:
+//
+//	results := []TaxCalculationResult{result1, result2, result3}
+//	summary := GetTaxSummary(results)
+//	fmt.Printf("Average tax rate: %.2f%%\n", summary["average_tax_rate"])
 func GetTaxSummary(results []TaxCalculationResult) map[string]interface{} {
 	summary := map[string]interface{}{
 		"total_transactions": len(results),
@@ -822,7 +1181,30 @@ func GetTaxSummary(results []TaxCalculationResult) map[string]interface{} {
 	return summary
 }
 
-// CalculateBestTaxStrategy calculates the best tax strategy for given scenarios
+// CalculateBestTaxStrategy determines the optimal tax strategy from multiple scenarios.
+// This function evaluates different tax calculation scenarios and returns the one
+// that results in the lowest total tax amount.
+//
+// Use cases:
+//   - Comparing different shipping addresses for tax optimization
+//   - Evaluating different customer types or exemptions
+//   - Testing various item categorizations
+//
+// Parameters:
+//   - scenarios: Slice of different tax calculation scenarios to evaluate
+//
+// Returns:
+//   - *TaxCalculationInput: The scenario that results in the lowest tax
+//   - error: Error if no scenarios provided or all scenarios are invalid
+//
+// Example:
+//
+//	scenarios := []TaxCalculationInput{scenario1, scenario2, scenario3}
+//	bestScenario, err := CalculateBestTaxStrategy(scenarios)
+//	if err == nil {
+//		result := Calculate(*bestScenario)
+//		fmt.Printf("Best strategy saves: $%.2f\n", originalTax - result.TotalTax)
+//	}
 func CalculateBestTaxStrategy(scenarios []TaxCalculationInput) (*TaxCalculationInput, error) {
 	if len(scenarios) == 0 {
 		return nil, errors.New("no scenarios provided")
