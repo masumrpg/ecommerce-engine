@@ -17,7 +17,7 @@ Thank you for your interest in contributing to the E-commerce Engine! We welcome
 
 ### Prerequisites
 
-- Go 1.21 or later
+- Go 1.25 or later
 - Git
 
 ### Installation

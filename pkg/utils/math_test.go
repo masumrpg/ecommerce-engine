@@ -919,3 +919,122 @@ func TestLinearRegression(t *testing.T) {
 		}
 	}
 }
+
+// Test for ScaleToRange function (currently 0% coverage)
+func TestScaleToRange(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    float64
+		min, max float64
+		expected float64
+	}{
+		{"Value within range", 5.0, 0.0, 10.0, 5.0},
+		{"Value below range", -5.0, 0.0, 10.0, 0.0},
+		{"Value above range", 15.0, 0.0, 10.0, 10.0},
+		{"Value at min", 0.0, 0.0, 10.0, 0.0},
+		{"Value at max", 10.0, 0.0, 10.0, 10.0},
+		{"Negative range", -5.0, -10.0, -1.0, -5.0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ScaleToRange(tt.value, tt.min, tt.max)
+			if result != tt.expected {
+				t.Errorf("ScaleToRange(%f, %f, %f) = %f; want %f", tt.value, tt.min, tt.max, result, tt.expected)
+			}
+		})
+	}
+}
+
+// Test for Logistic function (currently 0% coverage)
+func TestLogistic(t *testing.T) {
+	tests := []struct {
+		name     string
+		x, k, x0, l float64
+		expected float64
+	}{
+		{"Basic logistic", 5.0, 1.0, 0.0, 10.0, 9.933},
+		{"At inflection point", 0.0, 1.0, 0.0, 10.0, 5.0},
+		{"Negative x", -5.0, 1.0, 0.0, 10.0, 0.067},
+		{"Different carrying capacity", 2.0, 0.5, 1.0, 100.0, 62.246},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := Logistic(tt.x, tt.k, tt.x0, tt.l)
+			if math.Abs(result-tt.expected) > 0.01 {
+				t.Errorf("Logistic(%f, %f, %f, %f) = %f; want %f", tt.x, tt.k, tt.x0, tt.l, result, tt.expected)
+			}
+		})
+	}
+}
+
+// Test for ExponentialDecay function (currently 0% coverage)
+func TestExponentialDecay(t *testing.T) {
+	tests := []struct {
+		name     string
+		initial, rate, time float64
+		expected float64
+	}{
+		{"Basic decay", 100.0, 0.1, 1.0, 90.484},
+		{"No time", 100.0, 0.1, 0.0, 100.0},
+		{"High decay rate", 1000.0, 0.5, 2.0, 367.879},
+		{"Low decay rate", 100.0, 0.01, 10.0, 90.484},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ExponentialDecay(tt.initial, tt.rate, tt.time)
+			if math.Abs(result-tt.expected) > 0.01 {
+				t.Errorf("ExponentialDecay(%f, %f, %f) = %f; want %f", tt.initial, tt.rate, tt.time, result, tt.expected)
+			}
+		})
+	}
+}
+
+// Test for ExponentialGrowth function (currently 0% coverage)
+func TestExponentialGrowth(t *testing.T) {
+	tests := []struct {
+		name     string
+		initial, rate, time float64
+		expected float64
+	}{
+		{"Basic growth", 100.0, 0.1, 1.0, 110.517},
+		{"No time", 100.0, 0.1, 0.0, 100.0},
+		{"High growth rate", 100.0, 0.5, 2.0, 271.828},
+		{"Low growth rate", 1000.0, 0.01, 10.0, 1105.171},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ExponentialGrowth(tt.initial, tt.rate, tt.time)
+			if math.Abs(result-tt.expected) > 0.01 {
+				t.Errorf("ExponentialGrowth(%f, %f, %f) = %f; want %f", tt.initial, tt.rate, tt.time, result, tt.expected)
+			}
+		})
+	}
+}
+
+// Additional test for MaxInt to improve coverage from 66.7%
+func TestMaxIntEdgeCases(t *testing.T) {
+	tests := []struct {
+		name     string
+		a, b     int
+		expected int
+	}{
+		{"First larger", 10, 5, 10},
+		{"Second larger", 3, 8, 8},
+		{"Equal values", 7, 7, 7},
+		{"Negative values", -5, -10, -5},
+		{"Mixed signs", -3, 2, 2},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := MaxInt(tt.a, tt.b)
+			if result != tt.expected {
+				t.Errorf("MaxInt(%d, %d) = %d; want %d", tt.a, tt.b, result, tt.expected)
+			}
+		})
+	}
+}
